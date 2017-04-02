@@ -1,0 +1,69 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tds_z_i_p_gallery 0.9.1\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2017-04-02T08:07:10+02:00\n"
+"PO-Revision-Date: 2017-04-02T08:07:10+02:00\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: packages/tds_z_i_p_gallery/controller.php:29
+msgid "Adds ZIP gallery button to the WYSIWYG editor"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:34
+msgid "ZIP Gallery"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:113
+msgid "ZIP Gallery Plugin"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:138
+msgid "Insert ZIP gallery"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:139
+msgid "Edit link to ZIP gallery"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:140
+msgid "Link to ZIP file"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:141
+msgid "File is no ZIP archive"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:142
+msgid "Link must not be empty"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:143
+msgid "Select ZIP file"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:144
+msgid "Title of gallery link"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:145
+msgid "Link title must not be empty"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:146
+msgid "Error resolving URL <%s>"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:147
+msgid "Gallery <%s> has no valid images"
+msgstr ""
+
+#: packages/tds_z_i_p_gallery/controller.php:148
+msgid "Error loading information from file <%s>"
+msgstr ""

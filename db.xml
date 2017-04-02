@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema version="0.3">
+
+  <table name="TdsZIPGalleryCache">
+    <field name="cacheEntry" type="C">
+      <key/>
+    </field>
+    <field name="timeStamp" type="C"/>
+    <field name="content" type="B"/>
+  </table>
+
+</schema>

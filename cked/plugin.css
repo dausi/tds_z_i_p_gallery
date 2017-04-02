@@ -1,0 +1,19 @@
+@CHARSET "ISO-8859-1";
+/**
+ * ckeditor css for zipgallery plugin
+ *
+ * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
+ */
+div.cke_editable a.gallery
+{
+	background-color: #feb;
+}
+span.cked_error {
+	color: #d9534f;
+	float: right;
+}
+span.cke_button_icon.cke_button__zipgallery_icon:before {
+	content: "\f083"; /* fa-camera-retro */
+	font-family: FontAwesome;
+	font-size: 16px;
+}
