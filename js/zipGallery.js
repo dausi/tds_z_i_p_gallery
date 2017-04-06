@@ -254,7 +254,8 @@
 								);
 							$('.gallery-thumbs .swiper-wrapper')
 								.append('<div class="swiper-slide" style="' + thumbStyle 
-											+ ' background-image:url(data:image/jpg;base64,' + info[idx].thumbnail + ')"></div>')
+											+ ' background-image:url(data:image/jpg;base64,' + info[idx].thumbnail + ')"></div>'
+								);
 						}
 						alignGeometry(false);
 						/*

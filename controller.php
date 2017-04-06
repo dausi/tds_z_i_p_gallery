@@ -7,12 +7,12 @@
 namespace Concrete\Package\TdsZIPGallery;
 
 use Concrete\Core\Editor\Plugin;
-use \Core;
-use \Config;
-use \AssetList;
-use \Events;
-use \Page;
-use \View;
+use Core;
+use Config;
+use AssetList;
+use Events;
+use Page;
+use View;
 use Concrete\Core\Routing\Router;
 use Concrete\Core\Support\Facade\Route;
 
@@ -21,7 +21,7 @@ class Controller extends \Concrete\Core\Package\Package
 
 	protected $pkgHandle = 'tds_z_i_p_gallery';
 	protected $appVersionRequired = '5.7.5.6';
-	protected $pkgVersion = '0.9.1';
+	protected $pkgVersion = '0.9.2';
 	protected $cked_plugin_key = 'site.sites.default.editor.ckeditor4.plugins.selected';
 
 	public function getPackageDescription()
@@ -91,7 +91,6 @@ class Controller extends \Concrete\Core\Package\Package
 		}
 
 		$al = AssetList::getInstance();
-		$assetGroup = '';
 		if ($this->getMajorVersion() == '5')
 		{	// 5.x ==> redactor
 			$assetGroup = 'editor/plugin/zipgallery';
@@ -112,7 +111,16 @@ class Controller extends \Concrete\Core\Package\Package
 		$plugin->setKey($this->pkgHandle);
 		$plugin->setName(t('ZIP Gallery Plugin'));
 		$plugin->requireAsset($assetGroup);
-		Core::make('editor')->getPluginManager()->register($plugin);
+		$editor = Core::make('editor');
+		$editor->getPluginManager()->register($plugin);
+		$editor->getPluginManager()->select('tds_z_i_p_gallery');
+
+		$filetypes = Config::get('concrete.upload.extensions');
+		if (strpos($filetypes, '*.zip') === false)
+		{
+			$filetypes .= ';*.zip';
+			Config::save('concrete.upload.extensions', $filetypes);
+		}
 
 		Events::addListener('on_before_render', function($event) {
 			$cID = $event['view']->controller->c->cID;

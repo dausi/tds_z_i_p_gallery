@@ -12,11 +12,12 @@
  *
  */
 namespace Concrete\Package\TdsZIPGallery\Src;
+use Core;
 use Package;
 use Database;
 use DateTime;
 
-defined('C5_EXECUTE') or die(_("Access Denied."));
+defined('C5_EXECUTE') or die("Access Denied.");
 
 class ZipGalleryCache
 {
@@ -56,7 +57,7 @@ class ZipGalleryCache
 	{
 		switch ($this->method)
 		{
-			case 'cache':	return $this->getEntry_cache($oldest, $cacheName); break;
+			case 'cache':	return $this->getEntry_cache($cacheName); break;
 			case 'db':		return $this->getEntry_db($oldest, $cacheName); break;
 		}
 	}
@@ -74,11 +75,11 @@ class ZipGalleryCache
 	 *
 	 * @return null or content
 	 */
-	public function getEntry_cache($oldest, $cacheName)
+	public function getEntry_cache($cacheName)
 	{
 		$cacheEntry = str_replace('/', '#', $cacheName);
 		$data = null;
-		$expCache = \Core::make('cache/expensive');
+		$expCache = Core::make('cache/expensive');
 		$cache = $expCache->getItem($this->chId	. $cacheEntry);
 		if (!$cache->isMiss())
 		{
@@ -94,7 +95,7 @@ class ZipGalleryCache
 	{
 
 		$cacheEntry = str_replace('/', '#', $cacheName);
-		$expCache = \Core::make('cache/expensive');
+		$expCache = Core::make('cache/expensive');
 		$cache = $expCache->getItem($this->chId	. $cacheEntry);
 		if ($cache->isMiss())
 		{
@@ -119,7 +120,6 @@ class ZipGalleryCache
 	 */
 	public function getEntry_db($oldest, $cacheName)
 	{
-		$cacheEntry = $this->cacheFolder . '/' . $cacheName;
 		$data = null;
 		$sql = ' FROM '. $this->table . ' WHERE cacheEntry = ?';
 		$cStat = $this->db->fetchColumn('SELECT timeStamp' . $sql, [$cacheName]);
@@ -145,7 +145,6 @@ class ZipGalleryCache
 	 */
 	public function setEntry_db($cacheName, $data)
 	{
-		$cacheEntry = $this->cacheFolder . '/' . $cacheName;
 		if (preg_match($this->ignorePatterns['re'], $cacheName) === 0)
 		{
 			$entries = $this->db->fetchColumn(

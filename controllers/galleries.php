@@ -22,7 +22,7 @@
  */
 namespace Concrete\Package\TdsZIPGallery\Controller;
 
-defined('C5_EXECUTE') or die(_("Access Denied."));
+defined('C5_EXECUTE') or die("Access Denied.");
 
 use Concrete\Core\Controller\AbstractController;
 use Concrete\Package\TdsZIPGallery\Src\ZipGallery;

@@ -25,11 +25,10 @@
  */
 namespace Concrete\Package\TdsZIPGallery\Src;
 
-defined('C5_EXECUTE') or die(_("Access Denied."));
+defined('C5_EXECUTE') or die("Access Denied.");
 
 use Concrete\Package\TdsZIPGallery\Src\ZipGalleryCache;
 use \ZipArchive;
-use Concrete\Core\Http\Service\Json;
 
 class ZipGallery extends ZipArchive
 {
@@ -150,17 +149,17 @@ class ZipGallery extends ZipArchive
 						$iptcDecoded = [
 							'filename' => $filename
 						];
-						if (($exif = exif_read_data('data://image/jpeg;base64,'.base64_encode($data), null, true)) !== false)
+						if (($exif = @exif_read_data('data://image/jpeg;base64,'.base64_encode($data), null, true)) !== false)
 						{
-							$size = getimagesizefromstring($data, $imgInfo);
+							getimagesizefromstring($data, $imgInfo);
 							if (isset($imgInfo['APP13']))
 							{
-								$iptc = iptcparse($imgInfo['APP13']);
-								foreach ($iptc as $key => $value)
-								{
-									$idx = isset($this->iptcFields[$key]) ? $this->iptcFields[$key] : $key;
-									$iptcDecoded[$idx] = $value;
-								}
+								if (($iptc = iptcparse($imgInfo['APP13'])) != null)
+									foreach ($iptc as $key => $value)
+									{
+										$idx = isset($this->iptcFields[$key]) ? $this->iptcFields[$key] : $key;
+										$iptcDecoded[$idx] = $value;
+									}
 							}
 						}
 						$exifData = [];
@@ -182,7 +181,7 @@ class ZipGallery extends ZipArchive
 						];
 					}
 				}
-				$info = json_encode($this->media);
+				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
 				$this->cache->setEntry($this->cacheNamePrefix . 'info.json', $info);
 			}
 			else
@@ -203,7 +202,7 @@ class ZipGallery extends ZipArchive
 					$filename = $this->media[$idx]['name'];
 					$this->media[$idx]['thumbnail'] = base64_encode($this->getThumb($filename, $tnw, $tnh));
 				}
-				$info = json_encode($this->media);
+				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
 			}
 		}
 		return $info;
