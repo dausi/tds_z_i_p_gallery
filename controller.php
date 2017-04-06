@@ -21,7 +21,7 @@ class Controller extends \Concrete\Core\Package\Package
 
 	protected $pkgHandle = 'tds_z_i_p_gallery';
 	protected $appVersionRequired = '5.7.5.6';
-	protected $pkgVersion = '0.9.2';
+	protected $pkgVersion = '0.9.3';
 	protected $cked_plugin_key = 'site.sites.default.editor.ckeditor4.plugins.selected';
 
 	public function getPackageDescription()
@@ -34,17 +34,19 @@ class Controller extends \Concrete\Core\Package\Package
 		return t('ZIP Gallery');
 	}
 
-	public function getMajorVersion()
+	public function concreteV8orAbove()
 	{
-		$concrete = Config::get('concrete');
-		return substr($concrete['version_installed'], 0, 1);
+		// compare current c5 version to v8.x
+		// return < 0  on no v8
+		//        >= 0 on yes, its v8.x or above
+		return version_compare(Config::get('concrete')['version_installed'], '8');
 	}
 
  	public function install()
 	{
 		$pkg = parent::install();
 
-		if ($this->getMajorVersion() == '8')
+		if ($this->concreteV8orAbove() >= 0)
 		{
 			$cked_plugins = Config::get($this->cked_plugin_key);
 			array_push($cked_plugins, 'zipgallery');
@@ -56,7 +58,7 @@ class Controller extends \Concrete\Core\Package\Package
 	{
 		$pkg = parent::uninstall();
 
-		if ($this->getMajorVersion() == '8')
+		if ($this->concreteV8orAbove() >= 0)
 		{
 			$cked_plugins = Config::get($this->cked_plugin_key);
 			$cked_plugins = array_diff($cked_plugins, ['zipgallery']);
@@ -91,7 +93,7 @@ class Controller extends \Concrete\Core\Package\Package
 		}
 
 		$al = AssetList::getInstance();
-		if ($this->getMajorVersion() == '5')
+		if ($this->concreteV8orAbove() < 0)
 		{	// 5.x ==> redactor
 			$assetGroup = 'editor/plugin/zipgallery';
 			$al->register('javascript', $assetGroup, 'redactor/plugin.js',  [], $this->pkgHandle);
@@ -125,7 +127,7 @@ class Controller extends \Concrete\Core\Package\Package
 		Events::addListener('on_before_render', function($event) {
 			$cID = $event['view']->controller->c->cID;
 			$c = Page::getByID($cID);
-			if ($this->getMajorVersion() == '5' || $c->getPageTypeID() > 0)
+			if ($this->concreteV8orAbove() < 0 || $c->getPageTypeID() > 0)
 			{
 				// either version 5.x or page is content page
 				$al = AssetList::getInstance();
