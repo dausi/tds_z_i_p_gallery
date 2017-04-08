@@ -181,7 +181,11 @@ class ZipGallery extends ZipArchive
 						];
 					}
 				}
-				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
+				if (@defined(JSON_PARTIAL_OUTPUT_ON_ERROR))
+				{
+					$jsonOptions = JSON_PARTIAL_OUTPUT_ON_ERROR;
+				}
+				$info = json_encode($this->media, $jsonOptions);
 				$this->cache->setEntry($this->cacheNamePrefix . 'info.json', $info);
 			}
 			else
@@ -202,7 +206,11 @@ class ZipGallery extends ZipArchive
 					$filename = $this->media[$idx]['name'];
 					$this->media[$idx]['thumbnail'] = base64_encode($this->getThumb($filename, $tnw, $tnh));
 				}
-				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
+				if (@defined(JSON_PARTIAL_OUTPUT_ON_ERROR))
+				{
+					$jsonOptions = JSON_PARTIAL_OUTPUT_ON_ERROR;
+				}
+				$info = json_encode($this->media, $jsonOptions);
 			}
 		}
 		return $info;

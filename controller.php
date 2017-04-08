@@ -21,7 +21,7 @@ class Controller extends \Concrete\Core\Package\Package
 
 	protected $pkgHandle = 'tds_z_i_p_gallery';
 	protected $appVersionRequired = '5.7.5.6';
-	protected $pkgVersion = '0.9.3';
+	protected $pkgVersion = '0.9.4';
 	protected $cked_plugin_key = 'site.sites.default.editor.ckeditor4.plugins.selected';
 
 	public function getPackageDescription()
