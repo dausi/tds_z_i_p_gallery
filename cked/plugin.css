@@ -4,13 +4,19 @@
  *
  * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
  */
-div.cke_editable a.gallery
+div.cke_editable a.gallery, 
+div.cke_editable a[target^=gallery]
 {
 	background-color: #feb;
 }
 span.cked_error {
 	color: #d9534f;
-	float: right;
+    float: right;
+    position: relative;
+    background: white;
+    border: 1px solid #d9534f;
+    padding: 2px;
+    top: -2px;
 }
 span.cke_button_icon.cke_button__zipgallery_icon:before {
 	content: "\f083"; /* fa-camera-retro */

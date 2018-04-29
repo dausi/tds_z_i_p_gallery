@@ -3,6 +3,8 @@
  * 
  * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
  */
+/* global CKEDITOR */
+/* global zg_messages */
 CKEDITOR.plugins.add('tds_z_i_p_gallery', {
     //icons: 'zipgallery',
     init: function( editor ) {

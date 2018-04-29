@@ -32,11 +32,10 @@ use \ZipArchive;
 
 class ZipGallery extends ZipArchive
 {
-
-	protected $zipFilename;
 	protected $zipStat;
 	protected $cache;
 	protected $cacheNamePrefix;
+	protected $cacheExp;
 	protected $zip;
 	protected $entries;
 	protected $iptcFields = [
@@ -60,6 +59,7 @@ class ZipGallery extends ZipArchive
 	    '2#120' => 'caption',
 	    '2#122' => 'captionWriter'
 	];
+	protected $processedFile;
 	protected $media;
 
 	/**
@@ -67,23 +67,36 @@ class ZipGallery extends ZipArchive
      *
      * @param string $zipFilename
      */
-	public function __construct($zipFilename)
+	public function __construct($zg, $cacheExp)
 	{
 		$this->entries = 0;
-		$this->zipFilename = trim($zipFilename, '/');
-		$pathToZip = DIR_BASE . '/' . $this->zipFilename;
+		$pathToZip = DIR_BASE . '/' . trim($zg->zipUrl, '/');
 		$this->zip = new ZipArchive;
 		if ($this->zip->open($pathToZip) == true)
 		{
+			$this->cacheNamePrefix = $zg->zipId . ':';
 			$this->zipStat = stat($pathToZip);
 			$this->entries = $this->zip->numFiles;
 			$this->cache = new ZipGalleryCache;
-			$this->cacheNamePrefix = ltrim($this->zipFilename, '/') . '/';
+			$this->cacheExp = $cacheExp;
 			$this->cache->setIgnorePatterns([
 				're' => '/\.json$/',
 				'db' => '%.json'
 			]);
 		}
+		register_shutdown_function(function() {
+			$error = error_get_last();
+			if ($error['type'] === E_ERROR)
+			{
+				$errmsg = 'Processed: '.$this->processedFile.'<br/>'.$error['message'].'<br/>file: '.$error['file'].' line '.$error['line'];
+				error_log($errmsg);
+				$errmsg = '{"error":"' . urlencode ($errmsg). '"}';
+				header('HTTP/1.1 200 OK');
+				header('Content-Type: application/json');
+				header('Content-Length: '. strlen($errmsg));
+				echo $errmsg;
+			}
+		});
 	}
 
 	public function  __destruct()
@@ -96,29 +109,68 @@ class ZipGallery extends ZipArchive
      *
      * @param string filename
      */
-	public function getFromZip($filename)
+	public function getFile($filename, $maxWidth)
 	{
 		$data = FALSE;
 
 		if ($this->entries > 0)
 		{
-			$data = $this->zip->getFromName($filename);
+			if ($maxWidth > 0)
+			{
+				$data = $this->getThumb($filename, $maxWidth, -1);
+			}
+			else
+			{
+				if ($this->cacheExp)
+				{
+					$data = $this->getFromExpCache($this->cacheNamePrefix . $filename);
+					if ($data === null)
+					{
+						// not in cache, create
+						$data = $this->zip->getFromName($filename);
+						if ($data != null)
+						{
+							$this->cache->setEntryCacheExp($this->cacheNamePrefix . $filename, $data);
+						}
+					}
+				}
+				else
+				{
+					$data = $this->zip->getFromName($filename);
+				}				
+			}
 		}
 		return $data;
 	}
 	/**
-     * Get file identified by file name from cache.
+     * Get file identified by file name from DB cache.
      * Returns data or null.
      *
      * @param string filename
      */
-	private function getFromCache($filename)
+	private function getFromDBCache($filename)
 	{
 		$data = null;
 
 		if ($this->entries > 0)
 		{
-			$data = $this->cache->getEntry($this->zipStat['mtime'], $this->cacheNamePrefix . $filename);
+			$data = $this->cache->getEntryDB($this->zipStat['mtime'], $this->cacheNamePrefix . $filename);
+		}
+		return $data;
+	}
+	/**
+     * Get file identified by file name from c5 cache/expensive.
+     * Returns data or null.
+     *
+     * @param string filename
+     */
+	private function getFromExpCache($filename)
+	{
+		$data = null;
+
+		if ($this->entries > 0)
+		{
+			$data = $this->cache->getEntryCacheExp($this->zipStat['mtime'], $this->cacheNamePrefix . $filename);
 		}
 		return $data;
 	}
@@ -131,7 +183,8 @@ class ZipGallery extends ZipArchive
 		if ($this->entries > 0)
 		{
 			// ZIP file is open, look for cached info entry
-			if (($info = $this->getFromCache('info.json')) === null)
+			$info = $this->getFromDBCache('info.json');
+			if (empty($info))
 			{
 				// ZIP file info is not in cache, generate and set into cache
 				$finfo = new \finfo(FILEINFO_NONE);
@@ -144,6 +197,7 @@ class ZipGallery extends ZipArchive
 					if (preg_match('/jpe?g$/i', $filename) === 1)
 					{
 						// ZIP entry is relevant file
+						$this->processedFile = $filename;
 						$data = $this->zip->getFromName($filename);
 						// init decoded IPTC fields with pseudo 'filename'
 						$iptcDecoded = [
@@ -152,14 +206,16 @@ class ZipGallery extends ZipArchive
 						if (($exif = @exif_read_data('data://image/jpeg;base64,'.base64_encode($data), null, true)) !== false)
 						{
 							getimagesizefromstring($data, $imgInfo);
-							if (isset($imgInfo['APP13']))
+							if (isset($imgInfo['APP13']) && ($iptc = iptcparse($imgInfo['APP13'])) != null)
 							{
-								if (($iptc = iptcparse($imgInfo['APP13'])) != null)
-									foreach ($iptc as $key => $value)
+								foreach ($iptc as $key => $value)
+								{
+									$idx = isset($this->iptcFields[$key]) ? $this->iptcFields[$key] : $key;
+									if ($idx != $key)
 									{
-										$idx = isset($this->iptcFields[$key]) ? $this->iptcFields[$key] : $key;
 										$iptcDecoded[$idx] = $value;
 									}
+								}
 							}
 						}
 						$exifData = [];
@@ -169,7 +225,11 @@ class ZipGallery extends ZipArchive
 							{
 								if (is_array($value) || $finfo->buffer($value) != 'data')
 								{
-									$exifData[$exKey][$key] = $value;
+									$value = preg_replace('/[\x00-\x1F\x7F]/u', '', $value);
+									if (!empty($value))
+									{
+										$exifData[$exKey][$key] = $value;
+									}
 								}
 							}
 						}
@@ -181,12 +241,8 @@ class ZipGallery extends ZipArchive
 						];
 					}
 				}
-				if (@defined(JSON_PARTIAL_OUTPUT_ON_ERROR))
-				{
-					$jsonOptions = JSON_PARTIAL_OUTPUT_ON_ERROR;
-				}
-				$info = json_encode($this->media, $jsonOptions);
-				$this->cache->setEntry($this->cacheNamePrefix . 'info.json', $info);
+				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
+				$this->cache->setEntryDB($this->cacheNamePrefix . 'info.json', $info);
 			}
 			else
 			{
@@ -206,11 +262,7 @@ class ZipGallery extends ZipArchive
 					$filename = $this->media[$idx]['name'];
 					$this->media[$idx]['thumbnail'] = base64_encode($this->getThumb($filename, $tnw, $tnh));
 				}
-				if (@defined(JSON_PARTIAL_OUTPUT_ON_ERROR))
-				{
-					$jsonOptions = JSON_PARTIAL_OUTPUT_ON_ERROR;
-				}
-				$info = json_encode($this->media, $jsonOptions);
+				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
 			}
 		}
 		return $info;
@@ -226,16 +278,24 @@ class ZipGallery extends ZipArchive
 	public function getThumb($filename, $new_width, $new_height)
 	{
 		$tnFilename = $new_width . 'x' . $new_height . '/' . $filename;
-		$data = $this->getFromCache($tnFilename);
+		$data = $this->getFromDBCache($tnFilename);
 		if ($data === null)
 		{
 			// not in cache, create
-			$data = $this->getFromZip($filename);
+			$this->processedFile = $filename;
+			$data = $this->getFile($filename, 0);
 			if ($data != null)
 			{
 				$im = imagecreatefromstring($data);
 				list($width, $height) = getimagesizefromstring($data);
-				if ($new_width < 0)
+				if ($new_height < 0)
+				{
+					//
+					// new-_width = max-width
+					//
+					$new_height = intval($new_width * $height / $width); 
+				}
+				else if ($new_width < 0)
 				{
 					//
 					// fixed height, flexible width
@@ -266,7 +326,7 @@ class ZipGallery extends ZipArchive
 				if (imagejpeg($tnail, null))
 				{
 					$data = ob_get_contents();
-					$this->cache->setEntry($this->cacheNamePrefix . $tnFilename, $data);
+					$this->cache->setEntryDB($this->cacheNamePrefix . $tnFilename, $data);
 				}
 				ob_end_clean();
 			}

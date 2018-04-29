@@ -1,12 +1,9 @@
 /**
  * CK Editor dialog for ZIP gallery
  * 
- * Copyright 2017, 2018 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
- * 
- * @param {window.jQuery} $
+ * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
  */
 (function($) {
-/* global CKEDITOR, zg_messages */
 	
 	var validate = function(id, check, msg) {
      	var $div = $('#' + id);
@@ -15,7 +12,7 @@
      		$('span.cked_error', $div).remove();
      		return true;
  		} else {
-     		if ($('span.cked_error', $div).length === 0) {
+     		if ($('span.cked_error', $div).length == 0) {
          		$div.prepend('<span class="cked_error">' + msg + '</span>');
      		}
      		return false;
@@ -25,7 +22,7 @@
  		$width: null,
  		$height: null
  	};
-	var ident = '';
+
 	CKEDITOR.dialog.add('zipgalleryDialog', function(editor) {
 		var zg_no_zip = '';
 	    return {
@@ -43,16 +40,15 @@
                         validate: function() {
                         	zg_no_zip = '#' + this.domId + ' span';
                         	return validate(this.domId, function(value) {
-	                        			return value !== '';
+	                        			return value != '';
 	                        		}, zg_messages.zg_url_non_empty)
 	                        	&& validate(this.domId, function(value) {
                         			return value.match(/\.zip$/);
                         		}, zg_messages.zg_no_zip);
                         },
                         setup: function(element) {
-							ident = this.domId;
-                        	$('#' + ident + ' span.cked_error').remove();
-                        	$('#' + ident + ' input').attr('readonly', 'readonly').css('background-color', '#eee');
+                        	$('#' + this.domId + ' span.cked_error').remove();
+                        	$('#' + this.domId + ' input').attr('readonly', 'readonly').css('background-color', '#eee');
                         	var href = element.getAttribute('href');
                         	if (href !== null)
                         		href = href.replace(/\?.*/, '')
@@ -68,17 +64,15 @@
                         	if (zg_no_zip !== '')
                         		$(zg_no_zip).remove();
                             var dialog = this.getDialog();
- 							var opts = { filters: [
-									{ field: "type", type: 6 }
-							]};
-                           ConcreteFileManager.launchDialog(function(data) {
+							var opts = { filters: [ { field: "type", type: 6 } ]};
+                            ConcreteFileManager.launchDialog(function(data) {
                                 $.fn.dialog.showLoader();
                                 ConcreteFileManager.getFileDetails(data.fID, function(r) {
                                     $.fn.dialog.hideLoader();
                                     element = dialog.getContentElement('data', 'link');
                                     element.setValue(r.files[0].url);
                                 });
-                            });
+                            }, opts);
                         }
                     },
                     {
@@ -87,7 +81,7 @@
                         label: zg_messages.zg_linktitle,
                         validate: function() {
                         	return validate(this.domId, function(value) {
-                    			return value !== '';
+                    			return value != '';
                     		}, zg_messages.zg_title_non_empty);
                         },
                         setup: function(element) {
@@ -177,16 +171,6 @@
                         	
                          	thumbs.$width  = $(domId + ' input:first-child').val(tn.width);
                          	thumbs.$height = $(domId + ' input:last-child').val(tn.height);
-						}
-                    },
-                    {
-                        type: 'checkbox',
-                        id: 'inhibitDownload',
-                        label: zg_messages.zg_inhibitDownload,
-                        setup: function(element) {
-							var tg = element.getAttribute('target');
-							var ckd  =  tg === null ? '' : (tg.match(/^gallery-/) ? 'checked' : '');
-							$('#' + this.domId + ' input').prop('checked', ckd);
                         }
                     }
                 ]
@@ -199,7 +183,7 @@
 	            if (element) {
 	                element = element.getAscendant('a', true);
 	            }
-	            if (!element || element.getName() !== 'a') {
+	            if (!element || element.getName() != 'a') {
 	                element = editor.document.createElement('a');
 	                element.setText(selection._.cache.selectedText);
 	                this.insertMode = true;
@@ -214,8 +198,8 @@
 	       onOk: function() {
 				var dialog = this;
 				var link = this.element;
-	            var imgidx = parseInt(dialog.getValueOf('data', 'imgidx'));
 	            link.removeAttributes();
+	            var imgidx = parseInt(dialog.getValueOf('data', 'imgidx'));
 	            link.setAttribute('data-index', imgidx);
 	            link.setAttribute('data-caption', dialog.getValueOf('data', 'caption'));
 	            var tn = [
@@ -226,12 +210,8 @@
         		link.setAttribute('href',  dialog.getValueOf('data', 'link'));
 	            link.setAttribute('title', dialog.getValueOf('data', 'title'));
 	            link.setText(dialog.getValueOf('data', 'title'));
-				if (dialog.getValueOf('data', 'inhibitDownload')) {
-		            link.setAttribute('target', 'gallery-' + ident.replace(/[^0-9]*/g, ''));
-				} else {
-		            link.setAttribute('class', 'gallery');
-				}
-				if (this.insertMode) {
+	            link.setAttribute('class', 'gallery');
+	            if (this.insertMode) {
 	                editor.insertElement(link);
 				}
 	

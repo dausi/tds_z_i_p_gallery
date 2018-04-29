@@ -2,17 +2,22 @@
 /**
  * ZIP Image Gallery controller.
  *
- * Copyright 2017 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2017, 2018 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
  *
  * the ZIP Image Gallery controller URLS are
  *
- * 		/ccm/tds_z_i_p_gallery/galleries/getinfo  => public fundtion getInfo()
- * 		/ccm/tds_z_i_p_gallery/galleries/getimage => public fundtion getImage()
- * 		/ccm/tds_z_i_p_gallery/galleries/getthumb => public fundtion getThumb()
+ * 		/ccm/tds_z_i_p_gallery/galleries/getinfo  => public function getInfo()
+ * 		/ccm/tds_z_i_p_gallery/galleries/getimage => public function getImage()
+ * 		/ccm/tds_z_i_p_gallery/galleries/getthumb => public function getThumb()
  *
  * mandatory parameter is
  *
  *		zip=path-to-zip-archive
+ *		zipId=fileId-of-zipfile
+ *
+ * additional parameter for methods getImage()
+ *
+ *		max-width=WIDTH		maximum width of image [px]
  *
  * additional parameters for methods getInfo() and getThumb()
  *
@@ -26,13 +31,50 @@ defined('C5_EXECUTE') or die("Access Denied.");
 
 use Concrete\Core\Controller\AbstractController;
 use Concrete\Package\TdsZIPGallery\Src\ZipGallery;
+use Database;
+use File;
 
 class Galleries extends AbstractController
 {
+	public $zipUrl;
+	public $zipId;
+	
+	private function getFileUrl($fileId)
+	{
+		$f = File::getByID($fileId);
+		return isset($f) ? substr($f->getUrl(), strlen(BASE_URL)) : null;
+	}
+
+	private function getIDfromName($fileName) {
+		$db = Database::connection();
+		return $db->fetchColumn('SELECT FileVersions.fID FROM FileVersions WHERE FileVersions.fvIsApproved = 1 and FileVersions.fvFilename = ?', [$fileName]);
+	}	
+
+	private function isZip($query)
+	{
+		$this->zipUrl = '';
+		$valid = isset($query['zip']);
+		if ($valid)
+		{
+			$this->zipUrl = $query['zip'];
+			$this->zipId = $this->getIDfromName(basename($this->zipUrl));
+		}
+		else
+		{
+			$valid = isset($query['zipId']);
+			if ($valid)
+			{
+				$this->zipId = $query['zipId'];
+				$this->zipUrl = $this->getFileUrl($this->zipId);
+			}
+		}
+		return $valid;
+	}
+	
 	public function getInfo()
 	{
 		parse_str($_SERVER['QUERY_STRING'], $query);
-		if (isset($query['zip']))
+		if ($this->isZip($query))
 		{
 			$tnSize = null;
 			if (isset($query['tnw']) || isset($query['tnh']))
@@ -44,7 +86,7 @@ class Galleries extends AbstractController
 			}
 			header('Access-Control-Allow-Origin: *');
 			header('Content-Type: application/json');
-			$zip = new ZipGallery($query['zip']);
+			$zip = new ZipGallery($this, false);
 			echo $zip->getInfo($tnSize);
 		}
 	}
@@ -52,27 +94,36 @@ class Galleries extends AbstractController
 	public function getImage()
 	{
 		parse_str($_SERVER['QUERY_STRING'], $query);
-		if (isset($query['zip']) && isset($query['file']))
+		if ($this->isZip($query) && isset($query['file']))
 		{
+			$maxWidth = -1;
+			if (isset($query['max-width']))
+				$maxWidth = $query['max-width'];
 			header('Content-Disposition: attachment; filename="'. $query['file'] . '"');
 			header('Content-Type: image/jpeg'); // JPG picture
-			$zip = new ZipGallery($query['zip']);
-			echo $zip->getFromZip($query['file']);
+			$zip = new ZipGallery($this, isset($query['cache']));
+			echo $zip->getFile($query['file'], $maxWidth);
 		}
 	}
 
 	public function getThumb()
 	{
 		parse_str($_SERVER['QUERY_STRING'], $query);
-		if (isset($query['zip']) && isset($query['file']))
+		if ($this->isZip($query) && isset($query['file']))
 		{
 			$tnw = isset($query['tnw']) ? $query['tnw'] : 50;
 			$tnh = isset($query['tnh']) ? $query['tnh'] : 50;
 			header('Content-Disposition: attachment; filename="'. $tnw . 'x' . $tnh . '#' . $query['file'] . '"');
 			header('Content-Type: image/jpeg'); // JPG picture
-			$zip = new ZipGallery($query['zip']);
+			$zip = new ZipGallery($this, false);
 			echo $zip->getThumb($query['file'], $tnw, $tnh);
 		}
+	}
+	
+	public function getUrl()
+	{
+		parse_str($_SERVER['QUERY_STRING'], $query);
+		
 	}
 
 	public function getViewObject()

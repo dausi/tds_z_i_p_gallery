@@ -1,8 +1,8 @@
 <?php
 /**
- * ZIP image gallery add-on controller.
+ * ZIP Image Gallery add-on controller.
  *
- * Copyright 2016, 2017 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2016, 2017, 2018 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
  */
 namespace Concrete\Package\TdsZIPGallery;
 
@@ -11,27 +11,58 @@ use Core;
 use Config;
 use AssetList;
 use Events;
-use Page;
 use View;
 use Concrete\Core\Routing\Router;
 use Concrete\Core\Support\Facade\Route;
+use BlockType;
 
 class Controller extends \Concrete\Core\Package\Package
 {
 
 	protected $pkgHandle = 'tds_z_i_p_gallery';
 	protected $appVersionRequired = '5.7.5.6';
-	protected $pkgVersion = '0.9.4';
+	protected $pkgVersion = '0.9.5';
 	protected $cked_plugin_key = 'site.sites.default.editor.ckeditor4.plugins.selected';
 
 	public function getPackageDescription()
 	{
-		return t('Adds ZIP gallery button to the WYSIWYG editor');
+		return t('Adds ZIP Image Gallery button to the WYSIWYG editor');
 	}
 
 	public function getPackageName()
 	{
-		return t('ZIP Gallery');
+		return t('ZIP Image Gallery');
+	}
+
+	public function getMessages()
+	{
+		return [
+			'zg_zig_file'			=> t('ZIP Image Gallery file'),
+			'zg_flip_rate'			=> t('Gallery flipping rate [s] (0 - 20), set to 0 for no flipping'),
+			'zg_sl_per_view'		=> t('Slides per view (1 - 20)'),
+			'zg_sl_space'			=> t('Space between slides [px] (0 - 200)'),
+			'zg_default_caption'	=> '{%localised%&ensp;}{<b class="dim">&copy;%copyright% - }%index% - %filename%</b>',
+			'zg_caption'			=> t('Image caption code (see <a target="_blank" href="http://tdsystem.eu/en/projects/zip-image-gallery/zip-image-gallery-general-application#caption">documentation</a>) - get <a href="#" class="def">default</a>'),
+			'zg_unique'				=> t('Keep images unique over pages (for global ZIP Image Galleries)'),
+			'zg_show_gall'			=> t('Show ZIP Image Gallery on click'),
+			'zg_sub_caption'		=> t('Image caption code (same as above) - get <a href="#" class="def">default</a>'),
+			'zg_add'				=> t('Insert ZIP Image Gallery'),
+			'zg_edit'				=> t('Edit link to ZIP Image Gallery'),
+			'zg_zipurl'				=> t('Link to ZIP file'),
+			'zg_no_zip'				=> t('File is no ZIP archive'),
+			'zg_url_non_empty'		=> t('Link must not be empty'),
+			'zg_zipselect' 			=> t('Select ZIP Image Gallery file'),
+			'zg_linktitle'			=> t('Title of ZIP Image Gallery link'),
+			'zg_title_non_empty'	=> t('Link title must not be empty'),
+			'zg_indextitle'			=> t('Index of first image to show'),
+			'zg_index_gt_zero'		=> t('Index must by greater equal 1'),
+			'zg_thumbs_msg'			=> t('ZIP Image Gallery thumbnail size (WxH)'),
+			'zg_thumbs_err'			=> t('Thumbnail sizes (WxH) must be in (10 ... 200)'),
+			'zg_inhibitDownload'	=> t('Inhibit download of images'),
+			'zg_resolve_err'		=> t('Error resolving URL &lt;%s&gt;'),
+			'zg_no_images'			=> t('ZIP Image Gallery &lt;%s&gt; has no valid images'),
+			'zg_load_err'			=> t('Error loading information from file &lt;%s&gt;'),
+		];
 	}
 
 	public function concreteV8orAbove()
@@ -52,6 +83,7 @@ class Controller extends \Concrete\Core\Package\Package
 			array_push($cked_plugins, 'zipgallery');
 			Config::save($this->cked_plugin_key, $cked_plugins);
 		}
+
  	}
 
  	public function uninstall()
@@ -81,7 +113,6 @@ class Controller extends \Concrete\Core\Package\Package
 
 		$params = [
 			'cache_size'	=> 10000,		// for 'db' cache method
-			'cache_method'	=> 'db',		// use 'cache' for utilisation of c5 cache/expensive
 			'expires'		=> '+2 days'	// for 'cache' cache method
 		];
 		foreach($params as $param => $value)
@@ -91,7 +122,6 @@ class Controller extends \Concrete\Core\Package\Package
 				$this->getConfig()->save('tds_zip_gallery.' . $param, $value);
 			}
 		}
-
 		$al = AssetList::getInstance();
 		if ($this->concreteV8orAbove() < 0)
 		{	// 5.x ==> redactor
@@ -125,41 +155,23 @@ class Controller extends \Concrete\Core\Package\Package
 		}
 
 		Events::addListener('on_before_render', function($event) {
-			$cID = $event['view']->controller->c->cID;
-			$c = Page::getByID($cID);
-			if ($this->concreteV8orAbove() < 0 || $c->getPageTypeID() > 0)
-			{
-				// either version 5.x or page is content page
-				$al = AssetList::getInstance();
-				$al->register('javascript', 'zipgallery/sw', 'js/swiper.jquery.min.js', [], $this->pkgHandle);
-				$al->register('javascript', 'zipgallery',    'js/zipGallery.js',        [], $this->pkgHandle);
-				$al->register('css',        'zipgallery/sw', 'css/swiper.min.css',      [], $this->pkgHandle);
-				$al->register('css',        'zipgallery',    'css/zipGallery.css',      [], $this->pkgHandle);
-				$al->registerGroup('zipgallery', [
-					['javascript', 'zipgallery/sw'],
-					['javascript', 'zipgallery'],
-					['css',        'zipgallery/sw'],
-					['css',        'zipgallery']
-				]);
-				$v = View::getInstance();
-				$v->requireAsset('zipgallery');
 
-				$msgs = [
-					'zg_add'				=> t('Insert ZIP gallery'),
-					'zg_edit'				=> t('Edit link to ZIP gallery'),
-					'zg_zipurl'				=> t('Link to ZIP file'),
-					'zg_no_zip'				=> t('File is no ZIP archive'),
-					'zg_url_non_empty'		=> t('Link must not be empty'),
-					'zg_zipselect' 			=> t('Select ZIP file'),
-					'zg_linktitle'			=> t('Title of gallery link'),
-					'zg_title_non_empty'	=> t('Link title must not be empty'),
-					'zg_resolve_err'		=> t('Error resolving URL <%s>'),
-					'zg_no_images'			=> t('Gallery <%s> has no valid images'),
-					'zg_load_err'			=> t('Error loading information from file <%s>')
-				];
-				$script_tag = '<script type="text/javascript">var zg_messages = ' . json_encode($msgs) . '</script>';
-				$v->addFooterItem($script_tag);
-			}
+			$al = AssetList::getInstance();
+			$al->register('javascript', 'zipgallery/sw', 'js/swiper.jquery.min.js', [], $this->pkgHandle);
+			$al->register('javascript', 'zipgallery',	 'js/zipGallery.js',        [], $this->pkgHandle);
+			$al->register('css',        'zipgallery/sw', 'css/swiper.min.css',      [], $this->pkgHandle);
+			$al->register('css',        'zipgallery',	 'css/zipGallery.css',      [], $this->pkgHandle);
+
+			$al->registerGroup('zipgallery', [
+				['javascript', 'zipgallery/sw'],
+				['javascript', 'zipgallery'],
+				['css',        'zipgallery/sw'],
+				['css',        'zipgallery'],
+			]);
+			$v = View::getInstance();
+			$v->requireAsset('zipgallery');
+			$script_tag = '<script type="text/javascript">var zg_messages = ' . json_encode($this->getMessages()) . '</script>';
+			$v->addFooterItem($script_tag);
 		});
 	}
 }

@@ -11,3 +11,5 @@ current releases:
         - ramonleenders' coding comments considered
         - John's hints concerning dahsboard actions on installation added
 0.9.3 - controller version check update
+0.9.4 - json_encode option error prior to PHP 5.5.0 fixed
+0.9.5 - inhibit dowload of images

@@ -1,3 +1,9 @@
+#redactor-zipgallery-inh-dl {
+	display: inline;
+	height: auto;
+	margin-right: 5px;
+	width: auto;
+}
 b.label-red {
 	color: #fff;
 	background: #c92020;

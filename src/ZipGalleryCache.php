@@ -13,7 +13,7 @@
  */
 namespace Concrete\Package\TdsZIPGallery\Src;
 use Core;
-use Package;
+use Config;
 use Database;
 use DateTime;
 
@@ -25,22 +25,16 @@ class ZipGalleryCache
 	private $ignorePatterns = [];
 
 	// DB based parameters
-	private $maxEntries = 0;
+	private $maxEntries = 10000;
 	private $table = 'TdsZIPGalleryCache';
 	private $db = null;
 
-	// c5 cache bases parameters
+	// c5 cache/expensive bases parameters
 	private $chId =  'TdsZIPGalleryCache/';
 	private $expires = '+2 days';
 
-	private $method = 'db';
-
 	public function __construct()
 	{
-		$pkg = Package::getByHandle('tds_z_i_p_gallery');
-		$this->maxEntries = $pkg->getConfig()->get('tds_zip_gallery.cache_size');
-		$this->expires    = $pkg->getConfig()->get('tds_zip_gallery.expires');
-		$this->method	  = $pkg->getConfig()->get('tds_zip_gallery.cache_method');
 		$this->db = Database::connection();
 	}
 
@@ -53,29 +47,12 @@ class ZipGalleryCache
 		$this->ignorePatterns = $ignorePatterns;
 	}
 
-	public function getEntry($oldest, $cacheName)
-	{
-		switch ($this->method)
-		{
-			case 'cache':	return $this->getEntry_cache($cacheName); break;
-			case 'db':		return $this->getEntry_db($oldest, $cacheName); break;
-		}
-	}
-	public function setEntry($cacheName, $data)
-	{
-		switch ($this->method)
-		{
-			case 'cache':	$this->setEntry_cache($cacheName, $data); break;
-			case 'db':		$this->setEntry_db($cacheName, $data); break;
-		}
-	}
-
 	/*
 	 * get entry from c5 cache/expensive.
 	 *
 	 * @return null or content
 	 */
-	public function getEntry_cache($cacheName)
+	public function getEntryCacheExp($cacheName)
 	{
 		$cacheEntry = str_replace('/', '#', $cacheName);
 		$data = null;
@@ -91,7 +68,7 @@ class ZipGalleryCache
 	/*
 	 * set entry to c5 cache/expensive
 	 */
-	public function setEntry_cache($cacheName, $data)
+	public function setEntryCacheExp($cacheName, $data)
 	{
 
 		$cacheEntry = str_replace('/', '#', $cacheName);
@@ -99,9 +76,9 @@ class ZipGalleryCache
 		$cache = $expCache->getItem($this->chId	. $cacheEntry);
 		if ($cache->isMiss())
 		{
-			$cache->lock();
+			//$cache->lock();
 			$exp = new DateTime($this->expires);
-			if (substr(Config::get('concrete')['version_installed'], 0, 1) == '8')
+			if (version_compare(Config::get('concrete')['version_installed'], '8') >= 0)
 			{
 				$cache->save($cache->set($data)->expiresAt($exp));
 			}
@@ -118,7 +95,7 @@ class ZipGalleryCache
 	 *
 	 * @return null or content
 	 */
-	public function getEntry_db($oldest, $cacheName)
+	public function getEntryDB($oldest, $cacheName)
 	{
 		$data = null;
 		$sql = ' FROM '. $this->table . ' WHERE cacheEntry = ?';
@@ -130,6 +107,11 @@ class ZipGalleryCache
 			{
 				// cached entry is newer or same as $oldest
 				$data = $this->db->fetchColumn('SELECT content' . $sql, [$cacheName]);
+				if (empty($data))
+				{
+					$data = null;
+					$this->db->delete($this->table, ['cacheEntry' => $cacheName]);
+				}
 			}
 			else
 			{
@@ -143,7 +125,7 @@ class ZipGalleryCache
 	/*
 	 * set entry to DB cache table
 	 */
-	public function setEntry_db($cacheName, $data)
+	public function setEntryDB($cacheName, $data)
 	{
 		if (preg_match($this->ignorePatterns['re'], $cacheName) === 0)
 		{

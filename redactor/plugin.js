@@ -5,6 +5,8 @@
  * 
  * @param $
  */
+/* global zg_messages */
+/* global ConcreteFileManager */
 (function($)
 {
 	$.Redactor.prototype.tds_z_i_p_gallery = function()
@@ -28,9 +30,13 @@
 						+ 	'<label class="control-label">' + zg_messages.zg_linktitle + '</label>'
 						+ 	'<input class="form-control" type="text" id="redactor-zipgallery-url-text" />'
 						+ '</div>'
+						+ '<div class="form-group">'
+						+ 	'<input class="form-control" type="checkbox" id="redactor-zipgallery-inh-dl" />'
+						+ 	'<label class="control-label">' + zg_messages.zg_inhibitDownload + '</label>'
+						+ '</div>'
 					+ '</section>'
 				);
-				var button = this.button.add('zipgallery', zg_messages.zg_add)
+				var button = this.button.add('zipgallery', zg_messages.zg_add);
 				this.button.addCallback(button, this.tds_z_i_p_gallery.show);
 				this.button.setAwesome('zipgallery', 'fa-camera-retro');
 
@@ -51,17 +57,19 @@
 
 				this.tds_z_i_p_gallery.$inputUrl = $('#redactor-zipgallery-url');
 				this.tds_z_i_p_gallery.$inputText = $('#redactor-zipgallery-url-text');
+				this.tds_z_i_p_gallery.$inputIdl = $('#redactor-zipgallery-inh-dl');
 
 				this.tds_z_i_p_gallery.$inputText.val(this.link.text);
 				this.tds_z_i_p_gallery.$inputUrl.val(this.link.url);
+				this.tds_z_i_p_gallery.$inputIdl.prop('checked', this.link.target.match(/^gallery-/) ? 'checked' : '');
 				
 				this.tds_z_i_p_gallery.$inputUrl.change(function() {
-					if ($(this).val() != '') {
+					if ($(this).val() !== '') {
 						$('#redactor-modal-zipgallery-insert .err_no_url').hide();
 					} 
 				});
 				this.tds_z_i_p_gallery.$inputText.change(function() {
-					if ($(this).val() != '') {
+					if ($(this).val() !== '') {
 						$('#redactor-modal-zipgallery-insert .err_no_title').hide();
 					}
 				});
@@ -74,6 +82,9 @@
 				if (this.opts.concrete5.filemanager) {
 					$('a[data-action=choose-file-from-file-manager]').on('click', function(e) {
 						e.preventDefault();
+						var opts = { filters: [
+								{ field: "type", type: 6 }
+						]};
 						ConcreteFileManager.launchDialog(function(data) {
 							jQuery.fn.dialog.showLoader();
 							ConcreteFileManager.getFileDetails(data.fID, function(r) {
@@ -89,7 +100,7 @@
 								}
 								$('#redactor-modal-zipgallery-insert .err_no_url').hide();
 							});
-						});
+						}, opts);
 					});
 				} else {
 					$('a[data-action=choose-file-from-file-manager]').remove();
@@ -116,7 +127,8 @@
 				}
 				if (inputUrl !== '' && inputText !== '') {
 					this.placeholder.remove();
-					this.link.set(inputText.replace(/(<([^>]+)>)/ig, ''), inputUrl, 'gallery');
+					this.link.set(inputText.replace(/(<([^>]+)>)/ig, ''), inputUrl, 'gallery' 
+											+ (this.tds_z_i_p_gallery.$inputIdl.prop('checked') ? ('-' + this.opts.redactorEditor) : ''));
 					this.modal.close();
 				} 
 			}
