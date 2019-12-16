@@ -2,7 +2,7 @@
 /*
  * swiper control for zipGallery
  *
- * Copyright 2017, 2018 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
+ * Copyright 2017, 2018 - TDSystem Beratung & Training  - Thomas Dausner
  */
 @media screen {
 	a.gallery:before, a[target^=gallery]:before {
@@ -89,6 +89,9 @@
 	#zipGallery .gallery-thumbs .swiper-slide-active {
 		border-color: #fff;
 	    z-index: 2;
+	}
+	.ccm-block-tds-zip-gallery {
+		min-height: 10px;	/* for detection of responsive visible/hidden galleries */
 	}
 	.ccm-block-tds-zip-gallery .swiper-slide.clickable {
 		cursor: pointer;

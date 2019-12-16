@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema version="0.3">
+
+  <table name="btTdsZIPGallery">
+    <field name="bID" type="I">
+      <unsigned/>
+      <key/>
+    </field>
+    <field name="zipFileID" type="I"/>
+    <field name="startImg" type="I"/>
+    <field name="singleName" type="C"/>
+    <field name="singleWidth" type="I"/>
+    <field name="img_title" type="C"/>
+    <field name="img_alt" type="C"/>
+    <field name="flipRate" type="C"/>
+    <field name="numSlides" type="I"/>
+    <field name="spaceBetween" type="I"/>
+    <field name="caption" type="C"/>
+    <field name="imgUnique" type="I"/>
+	<field name="nav" type="C"/>
+    <field name="showit" type="I"/>
+    <field name="subCaption" type="C"/>
+    <field name="subWidth" type="I"/>
+    <field name="subHeight" type="I"/>
+    <field name="inhibitDownload" type="I"/>
+  </table>
+
+</schema>

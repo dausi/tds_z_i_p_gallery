@@ -1,12 +1,12 @@
 /**
  * CK Editor dialog for ZIP gallery
  * 
- * Copyright 2017, 2018 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
+ * Copyright 2017 - 2019 - TDSystem Beratung & Training  - Thomas Dausner
  * 
  * @param {window.jQuery} $
  */
 (function($) {
-/* global CKEDITOR, zg_messages */
+/* global CKEDITOR, ZIPGallery */
 	
 	var validate = function(id, check, msg) {
      	var $div = $('#' + id);
@@ -29,7 +29,7 @@
 	CKEDITOR.dialog.add('zipgalleryDialog', function(editor) {
 		var zg_no_zip = '';
 	    return {
-	        title: zg_messages.zg_edit,
+	        title: ZIPGallery.messages.zg_edit,
 	        minWidth: 400,
 	        minHeight: 200,
 	        contents: [{
@@ -39,15 +39,15 @@
                     {
                         type: 'text',
                         id: 'link',
-                        label: zg_messages.zg_zipurl,
+                        label: ZIPGallery.messages.zg_zipurl,
                         validate: function() {
                         	zg_no_zip = '#' + this.domId + ' span';
                         	return validate(this.domId, function(value) {
 	                        			return value !== '';
-	                        		}, zg_messages.zg_url_non_empty)
+	                        		}, ZIPGallery.messages.zg_url_non_empty)
 	                        	&& validate(this.domId, function(value) {
                         			return value.match(/\.zip$/);
-                        		}, zg_messages.zg_no_zip);
+                        		}, ZIPGallery.messages.zg_no_zip);
                         },
                         setup: function(element) {
 							ident = this.domId;
@@ -62,7 +62,7 @@
                     {
                         type: 'button',
                         id: 'buttonId',
-                        label: zg_messages.zg_zipselect,
+                        label: ZIPGallery.messages.zg_zipselect,
                         title: 'My title',
                         onClick: function() {
                         	if (zg_no_zip !== '')
@@ -84,11 +84,11 @@
                     {
                         type: 'text',
                         id: 'title',
-                        label: zg_messages.zg_linktitle,
+                        label: ZIPGallery.messages.zg_linktitle,
                         validate: function() {
                         	return validate(this.domId, function(value) {
                     			return value !== '';
-                    		}, zg_messages.zg_title_non_empty);
+                    		}, ZIPGallery.messages.zg_title_non_empty);
                         },
                         setup: function(element) {
                         	$('#' + this.domId + ' span.cked_error').remove();
@@ -99,11 +99,11 @@
                     {
                         type: 'text',
                         id: 'imgidx',
-                        label: zg_messages.zg_indextitle,
+                        label: ZIPGallery.messages.zg_indextitle,
                         validate: function() {
                         	return validate(this.domId, function(value) {
                     			return parseInt(value) > 0;
-                    		}, zg_messages.zg_index_gt_zero);
+                    		}, ZIPGallery.messages.zg_index_gt_zero);
                         },
                         setup: function(element) {
                             var href = element.getAttribute('href');
@@ -127,27 +127,27 @@
                     {
                         type: 'text',
                         id: 'caption',
-                        label: zg_messages.zg_caption,
+                        label: ZIPGallery.messages.zg_caption,
                         setup: function(element) {
                         	this.setValue(element.getAttribute('data-caption'));
                         	var domId = '#' + this.domId ; 
                         	$(domId + ' label a.def').click(function(e) {
                         		e.preventDefault();
-                        		$(domId + ' input').val(zg_messages.zg_default_caption);
+                        		$(domId + ' input').val(ZIPGallery.messages.zg_default_caption);
                         	});
                         }
                     },
                     {
                         type: 'text',
                         id: 'tnWidth',
-                        label: zg_messages.zg_thumbs_msg,
+                        label: ZIPGallery.messages.zg_thumbs_msg,
                         validate: function() {
                         	return validate(this.domId, function(value) {
                     			var tw = parseInt(thumbs.$width.val());
                     			var th = parseInt(thumbs.$height.val());
                     			return tw >= 10 && tw <= 200
                     				&& th >= 10 && th <= 200;
-                    		}, zg_messages.zg_thumbs_err);
+                    		}, ZIPGallery.messages.zg_thumbs_err);
                         },
                         setup: function(element) {
                         	var tnSize = element.getAttribute('data-thumbsize');
@@ -182,7 +182,7 @@
                     {
                         type: 'checkbox',
                         id: 'inhibitDownload',
-                        label: zg_messages.zg_inhibitDownload,
+                        label: ZIPGallery.messages.zg_inhibitDownload,
                         setup: function(element) {
 							var tg = element.getAttribute('target');
 							var ckd  =  tg === null ? '' : (tg.match(/^gallery-/) ? 'checked' : '');

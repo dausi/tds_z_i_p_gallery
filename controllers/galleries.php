@@ -2,7 +2,7 @@
 /**
  * ZIP Image Gallery controller.
  *
- * Copyright 2017, 2018 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2017, 2018 - TDSystem Beratung & Training - Thomas Dausner
  *
  * the ZIP Image Gallery controller URLS are
  *
@@ -38,7 +38,14 @@ class Galleries extends AbstractController
 {
 	public $zipUrl;
 	public $zipId;
-	
+
+    public function setParams($url, $id)
+    {
+        $this->zipUrl = $url;
+        $this->zipId  = $id;
+        return $this;
+    }
+
 	private function getFileUrl($fileId)
 	{
 		$f = File::getByID($fileId);
@@ -48,7 +55,7 @@ class Galleries extends AbstractController
 	private function getIDfromName($fileName) {
 		$db = Database::connection();
 		return $db->fetchColumn('SELECT FileVersions.fID FROM FileVersions WHERE FileVersions.fvIsApproved = 1 and FileVersions.fvFilename = ?', [$fileName]);
-	}	
+	}
 
 	private function isZip($query)
 	{
@@ -111,12 +118,21 @@ class Galleries extends AbstractController
 		parse_str($_SERVER['QUERY_STRING'], $query);
 		if ($this->isZip($query) && isset($query['file']))
 		{
-			$tnw = isset($query['tnw']) ? $query['tnw'] : 50;
-			$tnh = isset($query['tnh']) ? $query['tnh'] : 50;
-			header('Content-Disposition: attachment; filename="'. $tnw . 'x' . $tnh . '#' . $query['file'] . '"');
+            $tnw = isset($query['tnw']) ? $query['tnw'] : 50;
+            $tnh = isset($query['tnh']) ? $query['tnh'] : 50;
+            $filename = $query['file'];
+            $zip = new ZipGallery($this, false);
+            if (substr($filename, 0, 1) == '.')
+            {
+                $info = $zip->getInfo([
+                    'tnw' => $tnw, 'tnh' => $tnh
+                ], false);
+                $fileId = intval(substr($filename, 1)) % count($info);
+                $filename = $info[$fileId]['name'];
+            }
+			header('Content-Disposition: attachment; filename="'. $tnw . 'x' . $tnh . '#' . $filename . '"');
 			header('Content-Type: image/jpeg'); // JPG picture
-			$zip = new ZipGallery($this, false);
-			echo $zip->getThumb($query['file'], $tnw, $tnh);
+			echo $zip->getThumb($filename, $tnw, $tnh);
 		}
 	}
 	

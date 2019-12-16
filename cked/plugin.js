@@ -1,17 +1,16 @@
 /**
  * CK Editor plugin for ZIP gallery
  * 
- * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
+ * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner
  */
-/* global CKEDITOR */
-/* global zg_messages */
+/* global CKEDITOR, ZIPGallery */
 CKEDITOR.plugins.add('tds_z_i_p_gallery', {
     //icons: 'zipgallery',
     init: function( editor ) {
     	
         editor.addCommand('zipgallery', new CKEDITOR.dialogCommand('zipgalleryDialog'));
         editor.ui.addButton('Zipgallery', {
-            label:	 zg_messages.zg_add,
+            label:	 ZIPGallery.messages.zg_add,
             command: 'zipgallery',
             toolbar: 'insert'
         });
@@ -19,7 +18,7 @@ CKEDITOR.plugins.add('tds_z_i_p_gallery', {
         if (editor.contextMenu) {
             editor.addMenuGroup('zgalGroup');
             editor.addMenuItem('zgalItem', {
-                label:	 zg_messages.zg_edit,
+                label:	 ZIPGallery.messages.zg_edit,
                 //icon:	 this.path + 'icons/zipgallery.png',
                 command: 'zipgallery',
                 group:   'zgalGroup'

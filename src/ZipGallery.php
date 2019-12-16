@@ -4,7 +4,7 @@
  *
  * A representation of an image gallery from a ZIP archive
  *
- * Copyright 2016, 2017 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2016, 2017 - TDSystem Beratung & Training - Thomas Dausner
  *
  * ZIP archive info as well as thumbnail images are cached.
  *
@@ -67,7 +67,7 @@ class ZipGallery extends ZipArchive
      *
      * @param string $zipFilename
      */
-	public function __construct($zg, $cacheExp)
+	public function __construct($zg, $cacheExp = false)
 	{
 		$this->entries = 0;
 		$pathToZip = DIR_BASE . '/' . trim($zg->zipUrl, '/');
@@ -103,6 +103,10 @@ class ZipGallery extends ZipArchive
 	{
 	}
 
+	public function getZipStat()
+    {
+	    return $this->zipStat;
+    }
     /**
      * Get file identified by file name from ZIP archive.
      * Returns data or FALSE.
@@ -121,6 +125,10 @@ class ZipGallery extends ZipArchive
 			}
 			else
 			{
+                if ($filename == '.')
+                {
+                    $filename = $this->media[0]['name'];
+                }
 				if ($this->cacheExp)
 				{
 					$data = $this->getFromExpCache($this->cacheNamePrefix . $filename);
@@ -177,14 +185,22 @@ class ZipGallery extends ZipArchive
 	/**
      * Get entries from ZIP archive as JSON array
      */
-	public function getInfo($tnSize)
+	public function getInfo($tnSize, $doJson = true)
 	{
 		$info = null;
 		if ($this->entries > 0)
 		{
 			// ZIP file is open, look for cached info entry
 			$info = $this->getFromDBCache('info.json');
-			if (empty($info))
+			if (!empty($info))
+            {
+                $this->media = json_decode($info, true);
+                if (!$doJson)
+                {
+                    $info = $this->media;
+                }
+            }
+            else
 			{
 				// ZIP file info is not in cache, generate and set into cache
 				$finfo = new \finfo(FILEINFO_NONE);
@@ -243,13 +259,10 @@ class ZipGallery extends ZipArchive
 				}
 				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
 				$this->cache->setEntryDB($this->cacheNamePrefix . 'info.json', $info);
-			}
-			else
-			{
-				if ($tnSize !== null)
-				{
-					$this->media = json_decode($info, true);
-				}
+				if (!$doJson)
+                {
+                    $info = $this->media;
+                }
 			}
 			if ($tnSize !== null)
 			{	/*
@@ -262,7 +275,7 @@ class ZipGallery extends ZipArchive
 					$filename = $this->media[$idx]['name'];
 					$this->media[$idx]['thumbnail'] = base64_encode($this->getThumb($filename, $tnw, $tnh));
 				}
-				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
+                $info = $doJson ? json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR) : $this->media;
 			}
 		}
 		return $info;

@@ -1,7 +1,7 @@
 /**
  * CK Editor plugin registration
  * 
- * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner (aka dausi)
+ * Copyright 2017 - TDSystem Beratung & Training  - Thomas Dausner
  */
 /* global CKEDITOR, CCM_REL */
 if (typeof CKEDITOR !== 'undefined') {

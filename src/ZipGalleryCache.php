@@ -4,7 +4,7 @@
  *
  * implemantation of a simple cache.
  *
- * Copyright 2017 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2017 - TDSystem Beratung & Training - Thomas Dausner
  *
  * All cache entries are kept in a database table. Cache entry names are set up in caller.
  *
@@ -25,7 +25,7 @@ class ZipGalleryCache
 	private $ignorePatterns = [];
 
 	// DB based parameters
-	private $maxEntries = 10000;
+	private $maxEntries = 100000;
 	private $table = 'TdsZIPGalleryCache';
 	private $db = null;
 

@@ -1,12 +1,11 @@
 /**
  * Redactor plugin for zipgallery
  * 
- * Copyright 2017 - TDSystem Beratung & Training - Thomas Dausner (aka dausi)
+ * Copyright 2017 - TDSystem Beratung & Training - Thomas Dausner
  * 
  * @param $
  */
-/* global zg_messages */
-/* global ConcreteFileManager */
+/* global ZIPGallery, ConcreteFileManager */
 (function($)
 {
 	$.Redactor.prototype.tds_z_i_p_gallery = function()
@@ -17,33 +16,33 @@
 				this.modal.addTemplate('zipgallery', 
 					'<section id="redactor-modal-zipgallery-insert">'
 						+ '<div class="form-group">'
-						+ 	'<label class="control-label">' + zg_messages.zg_zipurl + '</label>'
-						+ 	'<div class="err_no_zip" style="color: red; display: none; float: right;">' + zg_messages.zg_no_zip + '</div>'
-						+ 	'<div class="err_no_url" style="color: red; display: none; float: right;">' + zg_messages.zg_url_non_empty + '</div>'
+						+ 	'<label class="control-label">' + ZIPGallery.messages.zg_zipurl + '</label>'
+						+ 	'<div class="err_no_zip" style="color: red; display: none; float: right;">' + ZIPGallery.messages.zg_no_zip + '</div>'
+						+ 	'<div class="err_no_url" style="color: red; display: none; float: right;">' + ZIPGallery.messages.zg_url_non_empty + '</div>'
 						+ 	'<div class="input-group">'
 						+ 		'<input type="text" class="form-control" id="redactor-zipgallery-url" readonly="readonly" />'
 						+ 		'<a href="#" data-action="choose-file-from-file-manager" class="btn btn-default input-group-addon"><i class="fa fa-file"></i></a>'
 						+ 	'</div>'
 						+ '</div>'
-						+ '<div class="err_no_title" style="color: red; display: none; float: right;">' + zg_messages.zg_title_non_empty + '</div>'
+						+ '<div class="err_no_title" style="color: red; display: none; float: right;">' + ZIPGallery.messages.zg_title_non_empty + '</div>'
 						+ '<div class="form-group">'
-						+ 	'<label class="control-label">' + zg_messages.zg_linktitle + '</label>'
+						+ 	'<label class="control-label">' + ZIPGallery.messages.zg_linktitle + '</label>'
 						+ 	'<input class="form-control" type="text" id="redactor-zipgallery-url-text" />'
 						+ '</div>'
 						+ '<div class="form-group">'
 						+ 	'<input class="form-control" type="checkbox" id="redactor-zipgallery-inh-dl" />'
-						+ 	'<label class="control-label">' + zg_messages.zg_inhibitDownload + '</label>'
+						+ 	'<label class="control-label">' + ZIPGallery.messages.zg_inhibitDownload + '</label>'
 						+ '</div>'
 					+ '</section>'
 				);
-				var button = this.button.add('zipgallery', zg_messages.zg_add);
+				var button = this.button.add('zipgallery', ZIPGallery.messages.zg_add);
 				this.button.addCallback(button, this.tds_z_i_p_gallery.show);
 				this.button.setAwesome('zipgallery', 'fa-camera-retro');
 
 			},
 			show: function()
 			{
-				var buttonText = !this.observe.isCurrent('a') ? zg_messages.zg_add : zg_messages.zg_edit;
+				var buttonText = !this.observe.isCurrent('a') ? ZIPGallery.messages.zg_add : ZIPGallery.messages.zg_edit;
 				this.modal.load('zipgallery', buttonText, 600);
 
 				this.modal.createCancelButton();

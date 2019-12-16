@@ -1,0 +1,109 @@
+@CHARSET "ISO-8859-1";
+
+div.ccm-block-tds-zip-gallery div.flex {
+	display: flex;
+	justify-content: flex-end;
+	flex-direction: row;
+}
+div.ccm-block-tds-zip-gallery div.left {
+	display: inline-block;
+	margin-right: auto !important;
+}
+div.ccm-block-tds-zip-gallery div.inhibit {
+	margin-top: 10px;
+}
+div.ccm-block-tds-zip-gallery div.right {
+	display: inline-block;
+}
+div.ccm-block-tds-zip-gallery div.clearfix {
+	clear: both;
+}
+div.ccm-block-tds-zip-gallery div.preview {
+	cursor: pointer;
+	margin-right: 10px;
+	width: 40px;
+	height: 40px;
+}
+div.ccm-block-tds-zip-gallery div.preview img {
+    position: relative;
+	width: 40px;
+	height: 40px;
+    top: 0;
+    left: 0;
+    transition: height 0.5s, width 0.5s, top 0.5s, left 0.5s;
+}
+div.ccm-block-tds-zip-gallery div.preview img:hover {
+	border: 2px solid #fff;
+	width: 100px;
+	height: 100px;
+    left: -58px;
+    top: -32px;
+}
+div.ccm-block-tds-zip-gallery div.form-group.half {
+	width: calc(50% + 42px);
+}
+div.ccm-block-tds-zip-gallery div.form-group.last {
+	margin-bottom: 0;
+}
+div.ccm-block-tds-zip-gallery input[type="checkbox"] {
+	margin-right: 5px;
+}
+div.ccm-block-tds-zip-gallery div.single-cnt,
+div.ccm-block-tds-zip-gallery div.single-img,
+div.ccm-block-tds-zip-gallery div.showit-cnt {
+	border: 1px solid #dedede;
+	margin: -20px 0 20px;
+	padding: 10px;
+}
+#subthumbs label {
+	display: block;
+}
+#subthumbs input, #subthumbs span {
+	float: left;
+	padding: 11px 18px;
+	text-align: center;
+	width: 20%;
+}
+/*
+ * image selector
+ */
+#imgSelect {
+	z-index: 2000 !important;
+}
+#imgSelect>div {
+    position: fixed;
+	border: 1px solid #aaa;
+	border-radius: 4px;
+    top: calc((100vh - 800px) / 2);
+    left: calc((100vw - 770px) / 2);
+    width: 770px;
+    height: 800px;
+    background-color: #fff;
+    z-index: 10000;
+}
+#imgSelect .label {
+	margin: 5px;
+    display: block;
+}
+#imgSelect .inner {
+	margin: 0 15px 15px;
+    display: block;
+	height: 720px;
+	overflow-y: auto;
+}
+#imgSelect .inner .thumb {
+	border: 2px solid #fff;
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 3px;
+	padding: 5px;
+	height: 114px;
+	width: 114px;
+}
+#imgSelect .inner .thumb:hover {
+	border-color: cornflowerblue;
+}
+#imgSelect .inner .thumb.selected {
+	border-color: green;
+}
