@@ -9,8 +9,8 @@
 		content: "\f083\00a0";	/* camera-retro &nbsp; */
 		font-family: FontAwesome;
 	}
-	div[id^=ccm-block-tds-zip-gallery] a.gallery:before,
-	div[id^=ccm-block-tds-zip-gallery] a[target^=gallery]::before {
+	a.single.gallery:before,
+	a.single[target^=gallery]::before {
 		content: ''
 	}
 	

@@ -55,6 +55,9 @@ div.ccm-block-tds-zip-gallery div.showit-cnt {
 	margin: -20px 0 20px;
 	padding: 10px;
 }
+.ccm-ui .form-group.paginator {
+	margin-bottom: 15px;
+}
 #subthumbs label {
 	display: block;
 }

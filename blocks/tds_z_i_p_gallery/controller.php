@@ -2,8 +2,8 @@
 namespace Concrete\Package\TdsZIPGallery\Block\TdsZIPGallery;
 
 use Concrete\Core\Block\BlockController;
-use File;
-use Concrete\Package\TdsZIPGallery\Controller as MyPkg;
+use Concrete\Core\File\File;
+use Concrete\Package\TdsZIPGallery\Controller as ZipController;
 
 class Controller extends BlockController
 {
@@ -26,9 +26,9 @@ class Controller extends BlockController
     public function add()
     {
 		$this->set('info', '');
-        $this->set('zf', null);
-        $this->set('zfID', 0);
-		$this->set('zipUrl', '');
+        $this->set('zipFileID', 0);
+        $this->set('zipFilePath', '');
+        $this->set('zipFileObject', null);
     	$this->set('flipRate', 20);
     	$this->set('single', 0);
     	$this->set('startImg', -1);
@@ -37,6 +37,7 @@ class Controller extends BlockController
         $this->set('img_title', '');
         $this->set('img_alt', '');
     	$this->set('numSlides', 1);
+        $this->set('pagination', 0);
     	$this->set('spaceBetween', 10);
  		$this->set('imgUnique', 0);
 		$this->set('nav', 'none');
@@ -45,26 +46,29 @@ class Controller extends BlockController
  		$this->set('subWidth', 50);
  		$this->set('subHeight', 50);
 		$this->set('inhibitDownload', 0);
- 		$this->set('messages', MyPkg::getMessages());
+ 		$this->set('messages', (new ZipController($this->app))->getMessages());
+
     }
 	
     public function edit()
     {
-        $zf = null;
-		$zfID = $this->getFileID();
-        if ($zfID > 0) {
-            $zf = $this->getFileObject();
+        $zipFileObject = null;
+		$zipFileID = $this->getFileID();
+        if ($zipFileID > 0) {
+            $zipFileObject = $this->getFileObject();
         }
-        $this->set('zf', $zf);
-        $this->set('zfID', $zfID);
-		$this->set('zipUrl', substr($zf->getUrl(), strlen(BASE_URL)));
-		$this->set('messages', MyPkg::getMessages());
+        $this->set('zipFileID', $zipFileID);
+		$this->set('zipFilePath', $zipFileObject->getRelativePath());
+        $this->set('zipFileObject', $this->getFileObject());
+        $this->set('messages', (new ZipController($this->app))->getMessages());
     }
 
     public function view()
     {
-        $this->set('zf', $this->getFileObject());
-		$messages = MyPkg::getMessages();
+        $zipFileObject = $this->getFileObject();
+        $this->set('zipFileID', $this->getFileID());
+        $this->set('zipFilePath', $zipFileObject->getRelativePath());
+		$messages = (new ZipController($this->app))->getMessages();
 		$this->set('msg', $messages['zg_show_gall']);
     }
 
@@ -72,6 +76,7 @@ class Controller extends BlockController
 	{
 		if (!isset($args['single']))
 			$args['singleName'] = '';
+        $args['pagination']	     = isset($args['pagination'])      ? 1 : 0;
 		$args['imgUnique']	     = isset($args['imgUnique'])       ? 1 : 0;
 		$args['showit']		     = isset($args['showit'])          ? 1 : 0;
 		$args['inhibitDownload'] = isset($args['inhibitDownload']) ? 1 : 0;
@@ -87,7 +92,7 @@ class Controller extends BlockController
     }
 
     /**
-     * @return \Concrete\Core\Entity\File\File|null
+     * @return File
      */
     public function getFileObject()
     {

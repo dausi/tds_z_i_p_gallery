@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema version="0.3">
-
+<schema xmlns="http://www.concrete5.org/doctrine-xml/0.5">
   <table name="btTdsZIPGallery">
-    <field name="bID" type="I">
+    <field name="bID" type="integer">
       <unsigned/>
       <key/>
     </field>
-    <field name="zipFileID" type="I"/>
-    <field name="startImg" type="I"/>
-    <field name="singleName" type="C"/>
-    <field name="singleWidth" type="I"/>
-    <field name="img_title" type="C"/>
-    <field name="img_alt" type="C"/>
-    <field name="flipRate" type="C"/>
-    <field name="numSlides" type="I"/>
-    <field name="spaceBetween" type="I"/>
-    <field name="caption" type="C"/>
-    <field name="imgUnique" type="I"/>
-	<field name="nav" type="C"/>
-    <field name="showit" type="I"/>
-    <field name="subCaption" type="C"/>
-    <field name="subWidth" type="I"/>
-    <field name="subHeight" type="I"/>
-    <field name="inhibitDownload" type="I"/>
+    <field name="zipFileID" type="integer"/>
+    <field name="startImg" type="integer"/>
+    <field name="singleName" type="string" size="255"/>
+    <field name="singleWidth" type="integer"/>
+    <field name="img_title" type="string" size="255"/>
+    <field name="img_alt" type="string" size="255"/>
+    <field name="flipRate" type="string" size="255"/>
+    <field name="numSlides" type="integer"/>
+    <field name="pagination" type="boolean"/>
+    <field name="spaceBetween" type="integer"/>
+    <field name="caption" type="string" size="255"/>
+    <field name="imgUnique" type="boolean"/>
+	<field name="nav" type="string" size="255"/>
+    <field name="showit" type="boolean"/>
+    <field name="subCaption" type="string" size="255"/>
+    <field name="subWidth" type="integer"/>
+    <field name="subHeight" type="integer"/>
+    <field name="inhibitDownload" type="boolean"/>
   </table>
-
 </schema>

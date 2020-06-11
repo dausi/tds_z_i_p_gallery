@@ -1,163 +1,167 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: tds_z_i_p_gallery 0.9.9.1\n"
+"Project-Id-Version: tds_z_i_p_gallery 0.9.9.2\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2019-01-08T18:45:51+01:00\n"
-"PO-Revision-Date: 2019-01-08 19:21+0100\n"
+"POT-Creation-Date: 2020-06-11T13:12:12+02:00\n"
+"PO-Revision-Date: 2020-06-11 13:15+0200\n"
 "Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 1.8.12\n"
 
-#: packages/tds_z_i_p_gallery/controller.php:30
+#: packages/tds_z_i_p_gallery/controller.php:28
 msgid "Adds ZIP Image Gallery Block and ZIP Image Gallery button to the WYSIWYG editor"
 msgstr "Fügt Block mit ZIP-Bildergalerie als auch Schaltfläche für ZIP-Bildergalerie zum WYSIWYG-Editor"
 
-#: packages/tds_z_i_p_gallery/controller.php:35
+#: packages/tds_z_i_p_gallery/controller.php:33
 msgid "TDS ZIP Image Gallery"
 msgstr "TDS ZIP Bldergalerie"
 
-#: packages/tds_z_i_p_gallery/controller.php:41
+#: packages/tds_z_i_p_gallery/controller.php:39
 msgid "ZIP Image Gallery file"
 msgstr "ZIP-Bildergalerie-Datei"
 
-#: packages/tds_z_i_p_gallery/controller.php:42
+#: packages/tds_z_i_p_gallery/controller.php:40
 msgid "Single image"
 msgstr "Einzelnes Bild"
 
-#: packages/tds_z_i_p_gallery/controller.php:43
+#: packages/tds_z_i_p_gallery/controller.php:41
 msgid "Select initial / single image"
 msgstr "Erstes / einzelnes Bild wählen"
 
-#: packages/tds_z_i_p_gallery/controller.php:44
+#: packages/tds_z_i_p_gallery/controller.php:42
 msgid "Select image by click"
 msgstr "Bild durch Anklicken auswählen"
 
-#: packages/tds_z_i_p_gallery/controller.php:45
+#: packages/tds_z_i_p_gallery/controller.php:43
 msgid "Gallery flipping rate [s] (0 - 20), set to 0 for no flipping"
 msgstr "Rate der Bildergalerie-Weiterschaltung [s] (0-20). 0 einstellen für keine Weiterschaltung"
 
-#: packages/tds_z_i_p_gallery/controller.php:46
+#: packages/tds_z_i_p_gallery/controller.php:44
 msgid "Slides per view (1 - 20)"
 msgstr "Anzahl Bilder nebeneinander (1-20)"
 
-#: packages/tds_z_i_p_gallery/controller.php:47
+#: packages/tds_z_i_p_gallery/controller.php:45
 msgid "Space between slides [px] (0 - 200)"
 msgstr "Platz zwischen Bildern [px] (0-200)"
 
-#: packages/tds_z_i_p_gallery/controller.php:49
+#: packages/tds_z_i_p_gallery/controller.php:47
 msgid "Image caption code (see <a target=\"_blank\" href=\"http://tdsystem.eu/en/projects/zip-image-gallery/zip-image-gallery-general-application#caption\">documentation</a>) - get <a href=\"#\" class=\"def\">default</a>"
 msgstr "Code für Bildbeschriftung (siehe <a target=\"_blank\" href=\"http://tdsystem.eu/projects/zip-bilder-galerie/zip-image-gallery-allgemeine-anwendung#caption\">Dokumentation</a>) - Standard-Einstellung <a href=\"#\" class=\"def\">holen</a>"
 
-#: packages/tds_z_i_p_gallery/controller.php:50
+#: packages/tds_z_i_p_gallery/controller.php:48
 msgid "Keep images unique over pages (for global ZIP Image Galleries)"
 msgstr "Bilder über Webseiten hinweg merken (für globale ZIP-Bildergalerien)"
 
-#: packages/tds_z_i_p_gallery/controller.php:51
+#: packages/tds_z_i_p_gallery/controller.php:49
+msgid "Show pagination"
+msgstr "Paginierung anzeigen"
+
+#: packages/tds_z_i_p_gallery/controller.php:50
 msgid "Navigation"
 msgstr "Navigation"
 
-#: packages/tds_z_i_p_gallery/controller.php:52
+#: packages/tds_z_i_p_gallery/controller.php:51
 msgid "Max. image width (set to 0 for full width)"
 msgstr "Bildbreite (max.) - auf 0 stellen für volle Breite"
 
-#: packages/tds_z_i_p_gallery/controller.php:53
+#: packages/tds_z_i_p_gallery/controller.php:52
 msgid "Image title"
 msgstr "Bild-Titel"
 
-#: packages/tds_z_i_p_gallery/controller.php:54
+#: packages/tds_z_i_p_gallery/controller.php:53
 msgid "Alternate image title"
 msgstr "Alternativer Bild-Titel"
 
-#: packages/tds_z_i_p_gallery/controller.php:55
+#: packages/tds_z_i_p_gallery/controller.php:54
 msgid "none"
 msgstr "keine"
 
-#: packages/tds_z_i_p_gallery/controller.php:56
+#: packages/tds_z_i_p_gallery/controller.php:55
 msgid "black"
 msgstr "schwarz"
 
-#: packages/tds_z_i_p_gallery/controller.php:57
+#: packages/tds_z_i_p_gallery/controller.php:56
 msgid "white"
 msgstr "weiß"
 
-#: packages/tds_z_i_p_gallery/controller.php:58
+#: packages/tds_z_i_p_gallery/controller.php:57
 msgid "Show ZIP Image Gallery on click"
 msgstr "ZIP-Bildergalerie auf Klick anzeigen"
 
-#: packages/tds_z_i_p_gallery/controller.php:59
+#: packages/tds_z_i_p_gallery/controller.php:58
 msgid "Image caption code (same as above) - get <a href=\"#\" class=\"def\">default</a>"
 msgstr "Code für Bildbeschriftung (wie oben) - Standard-Einstellung <a href=\"#\" class=\"def\">holen</a>"
 
-#: packages/tds_z_i_p_gallery/controller.php:60
+#: packages/tds_z_i_p_gallery/controller.php:59
 msgid "Insert ZIP Image Gallery"
 msgstr "ZIP-Bildergalerie einfügen"
 
-#: packages/tds_z_i_p_gallery/controller.php:61
+#: packages/tds_z_i_p_gallery/controller.php:60
 msgid "Edit link to ZIP Image Gallery"
 msgstr "Link zur ZIP-Bildergalerie bearbeiten"
 
-#: packages/tds_z_i_p_gallery/controller.php:62
+#: packages/tds_z_i_p_gallery/controller.php:61
 msgid "Link to ZIP file"
 msgstr "Link zur ZIP-Datei"
 
-#: packages/tds_z_i_p_gallery/controller.php:63
+#: packages/tds_z_i_p_gallery/controller.php:62
 msgid "File is no ZIP archive"
 msgstr "Die gewählte Datei ist kein ZIP-Archiv"
 
-#: packages/tds_z_i_p_gallery/controller.php:64
+#: packages/tds_z_i_p_gallery/controller.php:63
 msgid "Link must not be empty"
 msgstr "Link darf nicht leer sein"
 
-#: packages/tds_z_i_p_gallery/controller.php:65
+#: packages/tds_z_i_p_gallery/controller.php:64
 msgid "Select ZIP Image Gallery file"
 msgstr "ZIP-Bildergalerie auswählen"
 
-#: packages/tds_z_i_p_gallery/controller.php:66
+#: packages/tds_z_i_p_gallery/controller.php:65
 msgid "Title of ZIP Image Gallery link"
 msgstr "Titel für die ZIP-Bildergalerie"
 
-#: packages/tds_z_i_p_gallery/controller.php:67
+#: packages/tds_z_i_p_gallery/controller.php:66
 msgid "Link title must not be empty"
 msgstr "Der Titel des Links darf nicht leer sein"
 
-#: packages/tds_z_i_p_gallery/controller.php:68
+#: packages/tds_z_i_p_gallery/controller.php:67
 msgid "Index of first image to show"
 msgstr "Index des ersten Bildes zur Anzeige"
 
-#: packages/tds_z_i_p_gallery/controller.php:69
+#: packages/tds_z_i_p_gallery/controller.php:68
 msgid "Index must by greater equal 1"
 msgstr "Index muss größer gleich 1 sein"
 
-#: packages/tds_z_i_p_gallery/controller.php:70
+#: packages/tds_z_i_p_gallery/controller.php:69
 msgid "ZIP Image Gallery thumbnail size (WxH)"
 msgstr "ZIP-Bildergalerie Thumbnail-Größe (BxH)"
 
-#: packages/tds_z_i_p_gallery/controller.php:71
+#: packages/tds_z_i_p_gallery/controller.php:70
 msgid "Thumbnail sizes (WxH) must be in (10 ... 200)"
 msgstr "Thumbnail-Größe (BxH) muss im Bereich 10...200 liegen"
 
-#: packages/tds_z_i_p_gallery/controller.php:72
+#: packages/tds_z_i_p_gallery/controller.php:71
 msgid "Inhibit download of images"
 msgstr "Download von Bildern verhindern"
 
-#: packages/tds_z_i_p_gallery/controller.php:73
+#: packages/tds_z_i_p_gallery/controller.php:72
 msgid "Error resolving URL &lt;%s&gt;"
 msgstr "Fehler beim Auflösen der URLL &lt;%s&gt;"
 
-#: packages/tds_z_i_p_gallery/controller.php:74
+#: packages/tds_z_i_p_gallery/controller.php:73
 msgid "ZIP Image Gallery &lt;%s&gt; has no valid images"
 msgstr "ZIP-Bildergalerie &lt;%s&gt; hat keine gültigen Bilder"
 
-#: packages/tds_z_i_p_gallery/controller.php:75
+#: packages/tds_z_i_p_gallery/controller.php:74
 msgid "Error loading information from file &lt;%s&gt;"
 msgstr "Fehler beim Laden der Informationen aus Datei &lt;%s&gt;"
 
-#: packages/tds_z_i_p_gallery/controller.php:160
+#: packages/tds_z_i_p_gallery/controller.php:146
 msgid "ZIP Gallery Plugin"
 msgstr "ZIP-Bildergalerie Plugin"
 
@@ -169,6 +173,6 @@ msgstr "ZIP-Bildergalerie auf der Seite hinzufügen."
 msgid "ZIP Image Gallery"
 msgstr "ZIP-Bildergalerie"
 
-#: packages/tds_z_i_p_gallery/blocks/tds_z_i_p_gallery/view.php:79
+#: packages/tds_z_i_p_gallery/blocks/tds_z_i_p_gallery/view.php:104
 msgid "Empty ZIP Image Gallery block."
 msgstr "Leerer ZIP-Bildergalerie-Block."

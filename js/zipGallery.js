@@ -600,8 +600,9 @@ ZIPGallery.sw_run = [];
                             ? '<div class="swiper-button-next swiper-button-' + opts.showNav + '"></div>'
                             + '<div class="swiper-button-prev swiper-button-' + opts.showNav + '"></div>'
                             : '';
+                        var paginHtml = opts.pagination ? '<div class="swiper-pagination"></div>' : '';
                         var html = '<div class="swiper-container gallery"><div class="swiper-wrapper"></div>'
-                            + navHtml
+                            + navHtml + paginHtml
                             + '</div>';
                         $( opts.id )
                             .append( html )
@@ -715,6 +716,10 @@ ZIPGallery.sw_run = [];
                             else
                             {
                                 swOpts.autoplay = false;
+                            }
+                            if ( opts.pagination )
+                            {
+                                swOpts.pagination =  { el: '.swiper-pagination', dynamicBullets: true };
                             }
                             var sw = new Swiper( opts.id + ' .gallery', swOpts );
                             ZIPGallery.swiper[opts.id] = sw;

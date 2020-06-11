@@ -7,22 +7,20 @@
 
 namespace Concrete\Package\TdsZIPGallery;
 
+use Concrete\Core\Package\Package;
 use Concrete\Core\Editor\Plugin;
-use Core;
-use Config;
-use AssetList;
-use Events;
-use View;
-use Concrete\Core\Routing\Router;
+use Concrete\Core\Asset\AssetList;
+use Concrete\Core\Support\Facade\Events;
+use Concrete\Core\View\View;
 use Concrete\Core\Support\Facade\Route;
-use BlockType;
+use Concrete\Core\Block\BlockType\BlockType;
 
-class Controller extends \Concrete\Core\Package\Package
+class Controller extends Package
 {
 
     protected $pkgHandle = 'tds_z_i_p_gallery';
-    protected $appVersionRequired = '5.7.5.6';
-    protected $pkgVersion = '0.9.6';
+    protected $appVersionRequired = '8.0';
+    protected $pkgVersion = '0.9.9.2';
     protected $cked_plugin_key = 'site.sites.default.editor.ckeditor4.plugins.selected';
 
     public function getPackageDescription()
@@ -48,6 +46,7 @@ class Controller extends \Concrete\Core\Package\Package
             'zg_default_caption' => '{%localised%&ensp;}{<b class="dim">&copy;%copyright% - }%index% - %filename%</b>',
             'zg_caption' => t('Image caption code (see <a target="_blank" href="http://tdsystem.eu/en/projects/zip-image-gallery/zip-image-gallery-general-application#caption">documentation</a>) - get <a href="#" class="def">default</a>'),
             'zg_unique' => t('Keep images unique over pages (for global ZIP Image Galleries)'),
+            'zg_pagination' => t('Show pagination'),
             'zg_navigation' => t('Navigation'),
             'zg_singleWidth' => t('Max. image width (set to 0 for full width)'),
             'zg_img_title' => t('Image title'),
@@ -76,31 +75,20 @@ class Controller extends \Concrete\Core\Package\Package
         ];
     }
 
-    public function concreteV8orAbove()
-    {
-        // compare current c5 version to v8.x
-        // return < 0  on no v8
-        //        >= 0 on yes, its v8.x or above
-        return version_compare(Config::get('concrete')['version_installed'], '8');
-    }
-
     public function install()
     {
         $pkg = parent::install();
 
-        if ($this->concreteV8orAbove() >= 0)
+        $cked_plugins = $this->getConfig()->get($this->cked_plugin_key);
+        if ($cked_plugins == null)
         {
-            $cked_plugins = Config::get($this->cked_plugin_key);
-            if ($cked_plugins == null)
-            {
-                $cked_plugins = [ 'zipgallery' ];
-            }
-            else
-            {
-                array_push($cked_plugins, 'zipgallery');
-            }
-            Config::save($this->cked_plugin_key, $cked_plugins);
+            $cked_plugins = [ 'zipgallery' ];
         }
+        else
+        {
+            array_push($cked_plugins, 'zipgallery');
+        }
+        $this->getConfig()->save($this->cked_plugin_key, $cked_plugins);
 
         $blk = BlockType::getByHandle($this->pkgHandle);
         if (!is_object($blk))
@@ -111,16 +99,13 @@ class Controller extends \Concrete\Core\Package\Package
 
     public function uninstall()
     {
-        $pkg = parent::uninstall();
+        parent::uninstall();
 
-        if ($this->concreteV8orAbove() >= 0)
+        $cked_plugins = $this->getConfig()($this->cked_plugin_key);
+        if ($cked_plugins != null)
         {
-            $cked_plugins = Config::get($this->cked_plugin_key);
-            if ($cked_plugins != null)
-            {
-                $cked_plugins = array_diff($cked_plugins, ['zipgallery']);
-                Config::save($this->cked_plugin_key, $cked_plugins);
-            }
+            $cked_plugins = array_diff($cked_plugins, ['zipgallery']);
+            $this->getConfig()->save($this->cked_plugin_key, $cked_plugins);
         }
     }
 
@@ -134,7 +119,7 @@ class Controller extends \Concrete\Core\Package\Package
         ];
         foreach ($routes as $url => $method)
         {
-            Route::register('/ccm/galleries/' . $url, 'Concrete\Package\TdsZIPGallery\Controller\Galleries::' . $method);
+            Route::register('/ccm/galleries/' . $url, 'Concrete\Package\TdsZIPGallery\Controller\Gallery::' . $method);
         }
 
         $params = [
@@ -149,17 +134,9 @@ class Controller extends \Concrete\Core\Package\Package
             }
         }
         $al = AssetList::getInstance();
-        if ($this->concreteV8orAbove() < 0)
-        {    // 5.x ==> redactor
-            $assetGroup = 'editor/plugin/zipgallery';
-            $al->register('javascript', $assetGroup, 'redactor/plugin.js', [], $this->pkgHandle);
-            $al->register('css', $assetGroup, 'redactor/plugin.css', [], $this->pkgHandle);
-        } else
-        {    // 8.x ==> ckeditor
-            $assetGroup = 'editor/ckeditor/zipgallery';
-            $al->register('javascript', $assetGroup, 'cked/register.js', [], $this->pkgHandle);
-            $al->register('css', $assetGroup, 'cked/plugin.css', [], $this->pkgHandle);
-        }
+        $assetGroup = 'editor/ckeditor/zipgallery';
+        $al->register('javascript', $assetGroup, 'cked/register.js', [], $this->pkgHandle);
+        $al->register('css', $assetGroup, 'cked/plugin.css', [], $this->pkgHandle);
         $al->registerGroup($assetGroup, [
             ['javascript', $assetGroup],
             ['css', $assetGroup]
@@ -168,15 +145,15 @@ class Controller extends \Concrete\Core\Package\Package
         $plugin->setKey($this->pkgHandle);
         $plugin->setName(t('ZIP Gallery Plugin'));
         $plugin->requireAsset($assetGroup);
-        $editor = Core::make('editor');
+        $editor = $this->app->make('editor');
         $editor->getPluginManager()->register($plugin);
         $editor->getPluginManager()->select('tds_z_i_p_gallery');
 
-        $filetypes = Config::get('concrete.upload.extensions');
+        $filetypes = $this->getConfig()->get('concrete.upload.extensions');
         if (strpos($filetypes, '*.zip') === false)
         {
             $filetypes .= ';*.zip';
-            Config::save('concrete.upload.extensions', $filetypes);
+            $this->getConfig()->save('concrete.upload.extensions', $filetypes);
         }
 
         Events::addListener('on_before_render', function ($event) {

@@ -1,4 +1,8 @@
 <?php
+namespace Concrete\Package\TdsZIPGallery\Controller;
+
+defined('C5_EXECUTE') or die("Access Denied.");
+
 /**
  * Class ZipGallery
  *
@@ -23,11 +27,10 @@
  *	                                              /50x50                          thumbs WxH
  *                                                      /2016-05-23_10-38-10.jpg  file name
  */
-namespace Concrete\Package\TdsZIPGallery\Src;
 
-defined('C5_EXECUTE') or die("Access Denied.");
-
-use Concrete\Package\TdsZIPGallery\Src\ZipGalleryCache;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use finfo;
+use Punic\Data;
 use \ZipArchive;
 
 class ZipGallery extends ZipArchive
@@ -35,8 +38,8 @@ class ZipGallery extends ZipArchive
 	protected $zipStat;
 	protected $cache;
 	protected $cacheNamePrefix;
-	protected $cacheExp;
 	protected $zip;
+	protected $zipFilePath;
 	protected $entries;
 	protected $iptcFields = [
 	    '2#005' => 'title',
@@ -65,25 +68,26 @@ class ZipGallery extends ZipArchive
 	/**
      * Opens a ZIP file and scans it for contained files.
      *
-     * @param string $zipFilename
+     * @param string $zipFilePath
+     * @param string $cachePrefix
      */
-	public function __construct($zg, $cacheExp = false)
+	public function __construct($zipFilePath, $cachePrefix)
 	{
 		$this->entries = 0;
-		$pathToZip = DIR_BASE . '/' . trim($zg->zipUrl, '/');
+		$this->zipFilePath = DIR_BASE . '/' . trim($zipFilePath, '/');
 		$this->zip = new ZipArchive;
-		if ($this->zip->open($pathToZip) == true)
+		if ($this->zip->open($this->zipFilePath) == true)
 		{
-			$this->cacheNamePrefix = $zg->zipId . ':';
-			$this->zipStat = stat($pathToZip);
+			$this->cacheNamePrefix = $cachePrefix . ':';
+			$this->zipStat = stat($this->zipFilePath);
 			$this->entries = $this->zip->numFiles;
 			$this->cache = new ZipGalleryCache;
-			$this->cacheExp = $cacheExp;
 			$this->cache->setIgnorePatterns([
 				're' => '/\.json$/',
 				'db' => '%.json'
 			]);
 		}
+
 		register_shutdown_function(function() {
 			$error = error_get_last();
 			if ($error['type'] === E_ERROR)
@@ -103,19 +107,18 @@ class ZipGallery extends ZipArchive
 	{
 	}
 
-	public function getZipStat()
-    {
-	    return $this->zipStat;
-    }
     /**
      * Get file identified by file name from ZIP archive.
      * Returns data or FALSE.
      *
-     * @param string filename
+     * @param string $filename
+     * @param integer $maxWidth
+     * @return Data|null
+     * @throws InvalidArgumentException
      */
 	public function getFile($filename, $maxWidth)
 	{
-		$data = FALSE;
+		$data = null;
 
 		if ($this->entries > 0)
 		{
@@ -129,32 +132,19 @@ class ZipGallery extends ZipArchive
                 {
                     $filename = $this->media[0]['name'];
                 }
-				if ($this->cacheExp)
-				{
-					$data = $this->getFromExpCache($this->cacheNamePrefix . $filename);
-					if ($data === null)
-					{
-						// not in cache, create
-						$data = $this->zip->getFromName($filename);
-						if ($data != null)
-						{
-							$this->cache->setEntryCacheExp($this->cacheNamePrefix . $filename, $data);
-						}
-					}
-				}
-				else
-				{
-					$data = $this->zip->getFromName($filename);
-				}				
+				$data = $this->zip->getFromName($filename);
 			}
 		}
 		return $data;
 	}
-	/**
+
+    /**
      * Get file identified by file name from DB cache.
      * Returns data or null.
      *
      * @param string filename
+     * @return Data|null
+     * @throws InvalidArgumentException
      */
 	private function getFromDBCache($filename)
 	{
@@ -166,24 +156,14 @@ class ZipGallery extends ZipArchive
 		}
 		return $data;
 	}
-	/**
-     * Get file identified by file name from c5 cache/expensive.
-     * Returns data or null.
-     *
-     * @param string filename
-     */
-	private function getFromExpCache($filename)
-	{
-		$data = null;
 
-		if ($this->entries > 0)
-		{
-			$data = $this->cache->getEntryCacheExp($this->zipStat['mtime'], $this->cacheNamePrefix . $filename);
-		}
-		return $data;
-	}
-	/**
+    /**
      * Get entries from ZIP archive as JSON array
+     *
+     * @param integer $tnSize
+     * @param bool $doJson
+     * @return string|null
+     * @throws InvalidArgumentException
      */
 	public function getInfo($tnSize, $doJson = true)
 	{
@@ -202,8 +182,10 @@ class ZipGallery extends ZipArchive
             }
             else
 			{
-				// ZIP file info is not in cache, generate and set into cache
-				$finfo = new \finfo(FILEINFO_NONE);
+				/** ZIP file info is not in cache, generate and set into cache
+                 * @var $fileInfo finfo
+                 */
+				$fileInfo = new finfo(FILEINFO_NONE);
 				$entryNum = 0;
 				for ($i = 0; $i < $this->zip->numFiles; $i++)
 				{
@@ -239,7 +221,7 @@ class ZipGallery extends ZipArchive
 						{
 							foreach ($exValue as $key => $value)
 							{
-								if (is_array($value) || $finfo->buffer($value) != 'data')
+								if (is_array($value) || $fileInfo->buffer($value) != 'data')
 								{
 									$value = preg_replace('/[\x00-\x1F\x7F]/u', '', $value);
 									if (!empty($value))
@@ -257,6 +239,9 @@ class ZipGallery extends ZipArchive
 						];
 					}
 				}
+                /**
+                 * @var $info Data
+                 */
 				$info = json_encode($this->media, JSON_PARTIAL_OUTPUT_ON_ERROR);
 				$this->cache->setEntryDB($this->cacheNamePrefix . 'info.json', $info);
 				if (!$doJson)
@@ -280,13 +265,16 @@ class ZipGallery extends ZipArchive
 		}
 		return $info;
 	}
-	/**
+
+    /**
      * Generate thumb from file identified by file name.
      * Outputs thumbnail and returns true or false in case of error.
      *
      * @param string filename
      * @param int new_width
      * @param int new_height
+     * @return Data|null
+     * @throws InvalidArgumentException
      */
 	public function getThumb($filename, $new_width, $new_height)
 	{
@@ -332,12 +320,15 @@ class ZipGallery extends ZipArchive
 						$height = $width;
 					}
 				}
-				$tnail = imagecreatetruecolor($new_width, $new_height);
-				imagecopyresampled($tnail, $im, 0, 0, $x, $y, $new_width, $new_height, $width, $height);
+				$thumbNail = imagecreatetruecolor($new_width, $new_height);
+				imagecopyresampled($thumbNail, $im, 0, 0, $x, $y, $new_width, $new_height, $width, $height);
 
 				ob_start();
-				if (imagejpeg($tnail, null))
+				if (imagejpeg($thumbNail, null))
 				{
+                    /**
+                     * @var $data Data
+                     */
 					$data = ob_get_contents();
 					$this->cache->setEntryDB($this->cacheNamePrefix . $tnFilename, $data);
 				}

@@ -1,4 +1,7 @@
 <?php
+namespace Concrete\Package\TdsZIPGallery\Controller;
+
+defined('C5_EXECUTE') or die("Access Denied.");
 /**
  * Class ZipGalleryCache
  *
@@ -11,27 +14,29 @@
  * On running into $this->maxEntries number of cache entries the oldest entry is discarded.
  *
  */
-namespace Concrete\Package\TdsZIPGallery\Src;
-use Core;
-use Config;
+
 use Database;
 use DateTime;
+use Punic\Data;
 
-defined('C5_EXECUTE') or die("Access Denied.");
 
 class ZipGalleryCache
 {
-	// general parameter
+	/** general parameter
+     *
+     * @var $ignorePatterns mixed
+     */
 	private $ignorePatterns = [];
 
-	// DB based parameters
+	/** DB based parameters
+     *
+     * @var $maxEntries integer
+     * @var $table string
+     * @var $db Database
+     */
 	private $maxEntries = 100000;
 	private $table = 'TdsZIPGalleryCache';
 	private $db = null;
-
-	// c5 cache/expensive bases parameters
-	private $chId =  'TdsZIPGalleryCache/';
-	private $expires = '+2 days';
 
 	public function __construct()
 	{
@@ -47,54 +52,16 @@ class ZipGalleryCache
 		$this->ignorePatterns = $ignorePatterns;
 	}
 
-	/*
-	 * get entry from c5 cache/expensive.
-	 *
-	 * @return null or content
-	 */
-	public function getEntryCacheExp($cacheName)
-	{
-		$cacheEntry = str_replace('/', '#', $cacheName);
-		$data = null;
-		$expCache = Core::make('cache/expensive');
-		$cache = $expCache->getItem($this->chId	. $cacheEntry);
-		if (!$cache->isMiss())
-		{
-			$data = $cache->get();
-		}
-		return $data;
-	}
-
-	/*
-	 * set entry to c5 cache/expensive
-	 */
-	public function setEntryCacheExp($cacheName, $data)
-	{
-
-		$cacheEntry = str_replace('/', '#', $cacheName);
-		$expCache = Core::make('cache/expensive');
-		$cache = $expCache->getItem($this->chId	. $cacheEntry);
-		if ($cache->isMiss())
-		{
-			//$cache->lock();
-			$exp = new DateTime($this->expires);
-			if (version_compare(Config::get('concrete')['version_installed'], '8') >= 0)
-			{
-				$cache->save($cache->set($data)->expiresAt($exp));
-			}
-			else
-			{
-				$cache->set($data, $exp->getTimestamp());
-			}
-		}
-	}
-
-	/*
-	 * get entry from DB cache table.
-	 * entry found but older than 'oldest' is deleted.
-	 *
-	 * @return null or content
-	 */
+    /**
+     * get entry from DB cache table.
+     * entry found but older than 'oldest' is deleted.
+     *
+     * @param DateTime $oldest
+     * @param string $cacheName
+     *
+     * @return Data|null
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     */
 	public function getEntryDB($oldest, $cacheName)
 	{
 		$data = null;
@@ -122,8 +89,11 @@ class ZipGalleryCache
 		return $data;
 	}
 
-	/*
+	/**
 	 * set entry to DB cache table
+     *
+     * @param string $cacheName
+     * @param Data $data
 	 */
 	public function setEntryDB($cacheName, $data)
 	{

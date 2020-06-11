@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema version="0.3">
-
+<schema xmlns="http://www.concrete5.org/doctrine-xml/0.5">
   <table name="TdsZIPGalleryCache">
-    <field name="cacheEntry" type="C">
+    <field name="cacheEntry" type="string" size="255">
       <key/>
     </field>
-    <field name="timeStamp" type="C"/>
-    <field name="content" type="B"/>
+    <field name="timeStamp" type="integer"/>
+    <field name="content" type="blob"/>
   </table>
-
 </schema>
