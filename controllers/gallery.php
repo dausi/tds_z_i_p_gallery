@@ -1,4 +1,7 @@
 <?php
+namespace Concrete\Package\TdsZIPGallery\Controller;
+
+defined('C5_EXECUTE') or die("Access Denied.");
 /**
  * ZIP Image Gallery controller.
  *
@@ -25,9 +28,6 @@
  *		tnh=HEIGHT	thumbnail height [px]
  *
  */
-namespace Concrete\Package\TdsZIPGallery\Controller;
-
-defined('C5_EXECUTE') or die("Access Denied.");
 
 use Concrete\Core\Controller\AbstractController;
 use Database;

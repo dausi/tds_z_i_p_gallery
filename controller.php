@@ -1,11 +1,10 @@
 <?php
+namespace Concrete\Package\TdsZIPGallery;
 /**
  * ZIP Image Gallery add-on controller.
  *
  * Copyright 2016 - 2019 - TDSystem Beratung & Training - Thomas Dausner
  */
-
-namespace Concrete\Package\TdsZIPGallery;
 
 use Concrete\Core\Package\Package;
 use Concrete\Core\Editor\Plugin;
